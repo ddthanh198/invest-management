@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:invest_management/model/Asset.dart';
+import 'package:invest_management/model/Category.dart';
 import 'package:invest_management/model/PieData.dart';
+import 'package:invest_management/utils/ResourceUtils.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
+
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -10,6 +14,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final categories = _fakeData();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 36,
             child: IconButton(
               icon: Image.asset(
-                'assets/icons/ic_reload.png',
+                IconsResource.ic_reload,
                 color: Colors.black,
 
               ),
@@ -42,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 36,
             child: IconButton(
               icon: Image.asset(
-                'assets/icons/ic_add_asset.png',
+                IconsResource.ic_add_asset,
                 color: Colors.black,
               ),
               onPressed: () {
@@ -129,34 +135,22 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               child: ListView.builder(
-                  itemCount: 20,
-                  itemBuilder: (context, index) {
-                    return ExpansionPanelList(
-                      expansionCallback: (int index, bool isExpanded) {
-                        setState(() {
-                          _data[index].isExpanded = !isExpanded;
-                        });
-                      },
-                      children: _data.map<ExpansionPanel>((Item item) {
-                        return ExpansionPanel(
-                          headerBuilder: (BuildContext context, bool isExpanded) {
-                            return ListTile(
-                              title: Text(item.headerValue),
-                            );
-                          },
-                          body: ListTile(
-                              title: Text(item.expandedValue),
-                              subtitle: Text('To delete this panel, tap the trash can icon'),
-                              trailing: Icon(Icons.delete),
-                              onTap: () {
-
-                              }
-                          ),
-                          isExpanded: item.isExpanded,
-                        );
-                      }).toList(),
-                    );
-                }
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  return new ExpansionTile(
+                    title: new Text(categories[index].name, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),),
+                    children: [
+                      Expanded(
+                        child: ListView.builder(
+                            itemCount: categories[index].assets.length,
+                            itemBuilder: (context, index2) {
+                              return Text(categories[index].assets[index2].name);
+                            }
+                        ),
+                      ),
+                    ]
+                  );
+                },
               ),
             )
           ],
@@ -166,27 +160,54 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-List<Item> generateItems(int numberOfItems) {
-  return List.generate(numberOfItems, (int index) {
-    return Item(
-      headerValue: 'Panel $index',
-      expandedValue: 'This is item number $index',
-    );
-  });
-}
+List<Category> _fakeData(){
+  var result = <Category>[];
 
-// ...
+  var chungKhoan = Category(
+    name: "Chứng khoán",
+    image: IconsResource.ic_bank,
+    color: "#000456"
+  );
 
-List<Item> _data = generateItems(8);
+  var acb = Asset(
+    name: "ACB",
+    capital: 1000000000,
+    profit: 20000,
+  );
 
-class Item {
-  Item({
-    this.expandedValue,
-    this.headerValue,
-    this.isExpanded = false,
-  });
+  var tcb = Asset(
+    name: "TCB",
+    capital: 2000000000,
+    profit: 5000000,
+  );
 
-  String expandedValue;
-  String headerValue;
-  bool isExpanded;
+  chungKhoan.assets.add(acb);
+  chungKhoan.assets.add(tcb);
+
+
+  var tienao = Category(
+      name: "Tiền ảo",
+      image: IconsResource.ic_bank,
+      color: "#000123"
+  );
+
+  var bitcoin = Asset(
+    name: "Bitcoin",
+    capital: 50000000,
+    profit: 600000,
+  );
+
+  var ardr = Asset(
+    name: "ARDR",
+    capital: 10000000000,
+    profit: 9000000,
+  );
+
+  tienao.assets.add(bitcoin);
+  tienao.assets.add(ardr);
+
+  result.add(chungKhoan);
+  result.add(tienao);
+
+  return result;
 }
