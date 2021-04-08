@@ -55,14 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
         padding: const EdgeInsets.all(5),
         color: HexColor("#F2F5FA"),
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: <Widget>[
+            Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Row(
                 children: [
                   Container(
                     padding: const EdgeInsets.all(10),
@@ -73,30 +73,30 @@ class _HomeScreenState extends State<HomeScreen> {
                         Container(
                           margin: EdgeInsets.all(2),
                           child: const Text(
-                              "Tổng nguồn vốn",
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                              ),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.all(2),
-                          child: Text(
-                              "1000.000.000 vnd",
+                            "Tổng nguồn vốn",
                             style: TextStyle(
                               fontSize: 16,
-                              color: Colors.black
+                              color: Colors.black,
                             ),
                           ),
                         ),
                         Container(
                           margin: EdgeInsets.all(2),
                           child: Text(
-                              "-20.000.000 (-50 %)",
+                            "1000.000.000 vnd",
                             style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.red
+                                fontSize: 16,
+                                color: Colors.black
+                            ),
+                          ),
+                        ),
+                        Container(
+                          margin: EdgeInsets.all(2),
+                          child: Text(
+                            "-20.000.000 (-50 %)",
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.red
                             ),
                           ),
                         ),
@@ -104,8 +104,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   SizedBox(
-                    height: 200,
-                    width: 200,
+                    height: 180,
+                    width: 180,
                     child: SfCircularChart(
                         series: <DoughnutSeries<PieData, String>>[
                           DoughnutSeries<PieData, String>(
@@ -126,11 +126,67 @@ class _HomeScreenState extends State<HomeScreen> {
                   )
                 ],
               )
-            ],
-          ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                  itemCount: 20,
+                  itemBuilder: (context, index) {
+                    return ExpansionPanelList(
+                      expansionCallback: (int index, bool isExpanded) {
+                        setState(() {
+                          _data[index].isExpanded = !isExpanded;
+                        });
+                      },
+                      children: _data.map<ExpansionPanel>((Item item) {
+                        return ExpansionPanel(
+                          headerBuilder: (BuildContext context, bool isExpanded) {
+                            return ListTile(
+                              title: Text(item.headerValue),
+                            );
+                          },
+                          body: ListTile(
+                              title: Text(item.expandedValue),
+                              subtitle: Text('To delete this panel, tap the trash can icon'),
+                              trailing: Icon(Icons.delete),
+                              onTap: () {
+
+                              }
+                          ),
+                          isExpanded: item.isExpanded,
+                        );
+                      }).toList(),
+                    );
+                }
+              ),
+            )
+          ],
         ),
       ),
     );
   }
+}
 
+List<Item> generateItems(int numberOfItems) {
+  return List.generate(numberOfItems, (int index) {
+    return Item(
+      headerValue: 'Panel $index',
+      expandedValue: 'This is item number $index',
+    );
+  });
+}
+
+// ...
+
+List<Item> _data = generateItems(8);
+
+class Item {
+  Item({
+    this.expandedValue,
+    this.headerValue,
+    this.isExpanded = false,
+  });
+
+  String expandedValue;
+  String headerValue;
+  bool isExpanded;
 }
