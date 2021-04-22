@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/model/Asset.dart';
@@ -135,20 +136,58 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             Expanded(
               child: ListView.builder(
+                shrinkWrap: true,
                 itemCount: categories.length,
                 itemBuilder: (context, index) {
-                  return new ExpansionTile(
-                    title: new Text(categories[index].name, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold),),
-                    children: [
-                      Expanded(
-                        child: ListView.builder(
-                            itemCount: categories[index].assets.length,
-                            itemBuilder: (context, index2) {
-                              return Text(categories[index].assets[index2].name);
-                            }
+                  return new Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15.0),
+                    ),
+                    child: ExpansionTile(
+                        title: SizedBox(
+                            height: 50,
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(categories[index].name, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold))
+                            )
                         ),
-                      ),
-                    ]
+                        children: [
+                          SizedBox (
+                            height: (57 * (categories[index].assets.length)).toDouble() ,
+                            child: ListView.separated(
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: categories[index].assets.length,
+                                separatorBuilder: (BuildContext context, int index) =>
+                                    SizedBox(
+                                        height: 2,
+                                        child: Divider()
+                                    ),
+                                itemBuilder: (context, index2) {
+                                  return Container(
+                                      height: 55,
+                                      child: Container(
+                                        padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(categories[index].assets[index2].name),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Text(categories[index].assets[index2].capital.toString()),
+                                                Text(categories[index].assets[index2].profit.toString())
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                  );
+                                }
+                            ),
+                          ),
+                        ]
+                    ),
                   );
                 },
               ),
@@ -203,11 +242,75 @@ List<Category> _fakeData(){
     profit: 9000000,
   );
 
+  var perl = Asset(
+    name: "PERL",
+    capital: 50000000,
+    profit: 800000,
+  );
+
+  var wrx = Asset(
+    name: "WRX",
+    capital: 10000000,
+    profit: 90000,
+  );
+
   tienao.assets.add(bitcoin);
   tienao.assets.add(ardr);
+  tienao.assets.add(perl);
+  tienao.assets.add(wrx);
+
+  var tienGuiNganHang = Category(
+      name: "Tiền gửi ngân hàng",
+      image: IconsResource.ic_bank,
+      color: "#000456"
+  );
+
+  var acbBank = Asset(
+    name: "ACB",
+    capital: 10000000,
+    profit: 90000,
+  );
+
+  var vtb = Asset(
+    name: "VietinBank",
+    capital: 10000000,
+    profit: 90000,
+  );
+
+  var tech = Asset(
+    name: "Techcombank",
+    capital: 10000000,
+    profit: 90000,
+  );
+
+  var bidv = Asset(
+    name: "BIDV",
+    capital: 10000000,
+    profit: 90000,
+  );
+
+  var shb = Asset(
+    name: "SHB",
+    capital: 10000000,
+    profit: 90000,
+  );
+
+  var stb = Asset(
+    name: "STB",
+    capital: 10000000,
+    profit: 90000,
+  );
+
+  tienGuiNganHang.assets.add(acbBank);
+  tienGuiNganHang.assets.add(vtb);
+  tienGuiNganHang.assets.add(tech);
+  tienGuiNganHang.assets.add(bidv);
+  tienGuiNganHang.assets.add(shb);
+  tienGuiNganHang.assets.add(stb);
 
   result.add(chungKhoan);
   result.add(tienao);
+  result.add(tienGuiNganHang);
 
   return result;
 }
