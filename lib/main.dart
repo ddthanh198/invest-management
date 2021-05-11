@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:invest_management/blocs/asset_bloc_observer.dart';
 import 'package:invest_management/ui/HomeScreen.dart';
+import 'package:bloc/bloc.dart';
 
 void main() {
+  Bloc.observer = AssetBlocObserver();
   runApp(MyApp());
 }
 
