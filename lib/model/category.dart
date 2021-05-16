@@ -1,4 +1,4 @@
-import 'package:invest_management/model/Asset.dart';
+import 'package:invest_management/model/asset.dart';
 
 class Category {
   String name;

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invest_management/blocs/asset_bloc_observer.dart';
-import 'package:invest_management/ui/HomeScreen.dart';
+import 'package:invest_management/blocs/home_bloc.dart';
+import 'package:invest_management/repositories/asset_repository.dart';
+import 'package:invest_management/ui/home_screen.dart';
 import 'package:bloc/bloc.dart';
+
+import 'events/home_event.dart';
 
 void main() {
   Bloc.observer = AssetBlocObserver();
@@ -9,7 +14,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  final AssetRepository _repository = AssetRepository();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -17,7 +23,11 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomeScreen(),
+      home: BlocProvider(
+        create: (context) => HomeBloc(repository: _repository)
+                                ..add(GetDataAssetEvent()),
+        child: HomeScreen(),
+      )
     );
   }
 }
