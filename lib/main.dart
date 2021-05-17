@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       home: BlocProvider(
         create: (context) => HomeBloc(repository: _repository)
                                 ..add(GetDataAssetEvent()),
-        child: HomeScreen(),
+        child: HomeScreen(repository: _repository,),
       )
     );
   }

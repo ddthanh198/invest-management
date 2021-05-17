@@ -8,12 +8,16 @@ import 'package:invest_management/model/category.dart';
 import 'package:invest_management/model/pie_data.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/states/home_state.dart';
+import 'package:invest_management/ui/category_screen.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 
 class HomeScreen extends StatefulWidget {
+  final AssetRepository repository;
+  const HomeScreen({@required this.repository});
+
   @override
   State<StatefulWidget> createState() => _HomeScreenState();
 }
@@ -55,7 +59,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: Colors.black,
               ),
               onPressed: () {
-                print("press add");
+                showModalBottomSheet<void>(
+                    shape: RoundedRectangleBorder(
+                      borderRadius:BorderRadius.only(
+                        topLeft: Radius.circular(12),
+                        topRight: Radius.circular(12)
+                      )
+                    ),
+                    backgroundColor: Colors.white,
+                    context: context,
+                    builder: (BuildContext buildContext) {
+                      return CategoryScreen(repository: widget.repository);
+                    }
+                );
               }
             ),
           )
@@ -125,27 +141,27 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                SizedBox(
-                  height: 180,
-                  width: 180,
-                  child: SfCircularChart(
-                      series: <DoughnutSeries<PieData, String>>[
-                        DoughnutSeries<PieData, String>(
-                            innerRadius: "50%",
-                            dataSource: [
-                              PieData("hello", 10, Colors.yellow ,"10%"),
-                              PieData("hello", 20, Colors.red,"20%"),
-                              PieData("hello", 30, Colors.blue,"30%"),
-                              PieData("hello", 40, Colors.green,"40%"),
-                            ],
-                            pointColorMapper: (PieData data, _) => data.color,
-                            xValueMapper: (PieData data, _) => data.xData,
-                            yValueMapper: (PieData data, _) => data.yData,
-                            dataLabelMapper: (PieData data, _) => data.text,
-                            dataLabelSettings: DataLabelSettings(isVisible: true)),
-                      ]
-                  ),
-                )
+                // SizedBox(
+                //   height: 180,
+                //   width: 180,
+                //   child: SfCircularChart(
+                //       series: <DoughnutSeries<PieData, String>>[
+                //         DoughnutSeries<PieData, String>(
+                //             innerRadius: "50%",
+                //             dataSource: [
+                //               PieData("hello", 10, Colors.yellow ,"10%"),
+                //               PieData("hello", 20, Colors.red,"20%"),
+                //               PieData("hello", 30, Colors.blue,"30%"),
+                //               PieData("hello", 40, Colors.green,"40%"),
+                //             ],
+                //             pointColorMapper: (PieData data, _) => data.color,
+                //             xValueMapper: (PieData data, _) => data.xData,
+                //             yValueMapper: (PieData data, _) => data.yData,
+                //             dataLabelMapper: (PieData data, _) => data.text,
+                //             dataLabelSettings: DataLabelSettings(isVisible: true)),
+                //       ]
+                //   ),
+                // )
               ],
             )
         ),
@@ -163,7 +179,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 50,
                         child: Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(categories[index].name, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold))
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: Image.asset(
+                                    IconsResource.ic_bank,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(width: 18),
+                                Text(categories[index].name, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                              ],
+                            )
                         )
                     ),
                     children: [
