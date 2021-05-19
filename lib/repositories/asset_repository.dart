@@ -122,4 +122,8 @@ class AssetRepository {
 
     return result;
   }
+
+  Future<List<Category>> getCategory() async {
+    return _fakeData();
+  }
 }
