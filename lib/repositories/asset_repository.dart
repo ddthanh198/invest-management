@@ -1,8 +1,14 @@
-import 'package:invest_management/model/asset.dart';
-import 'package:invest_management/model/category.dart';
+import 'package:flutter/material.dart';
+import 'package:invest_management/data/db/database.dart';
+import 'package:invest_management/data/model/asset.dart';
+import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
 
 class AssetRepository {
+  final AssetDatabase? assetDatabase;
+
+  const AssetRepository({@required this.assetDatabase});
+
   Future<List<Category>> getDataAsset() async {
     return _fakeData();
   }

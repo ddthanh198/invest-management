@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:invest_management/blocs/category_bloc.dart';
-import 'package:invest_management/events/category_event.dart';
-import 'package:invest_management/model/category.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
-import 'package:invest_management/states/category_state.dart';
+import 'package:invest_management/ui/category/category_bloc.dart';
+import 'package:invest_management/ui/category/category_event.dart';
+import 'package:invest_management/ui/category/category_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
 
 class CategoryScreen extends StatefulWidget {
-  final AssetRepository repository;
+  final AssetRepository? repository;
   const CategoryScreen({@required this.repository});
 
   @override
@@ -56,18 +55,18 @@ class _CategoryScreenState extends State<CategoryScreen>{
           create: (context) => CategoryBloc(repository: widget.repository)..add(GetCategoryEvent()),
           child: BlocBuilder<CategoryBloc, CategoryState>(
               builder: (context, categoryState){
-                if(categoryState is GetCategorySuccess && categoryState.listCategory.length > 0) {
+                if(categoryState is GetCategorySuccess && categoryState.listCategory!.length > 0) {
                   return Expanded(
                       child: ListView.separated(
-                        itemCount: categoryState.listCategory.length,
+                        itemCount: categoryState.listCategory!.length,
                         separatorBuilder: (context, index) {return Divider(
                           height: 1,
                         );},
                         itemBuilder: (context, index){
-                          if(index < categoryState.listCategory.length - 1) {
+                          if(index < categoryState.listCategory!.length - 1) {
                             return ListTile(
                               title: Text(
-                                (categoryState.listCategory[index]).name,
+                                (categoryState.listCategory![index]).name!,
                                 style: TextStyle(
                                     fontSize: 14
                                 ),

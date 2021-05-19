@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:invest_management/model/category.dart';
+import 'package:invest_management/data/model/category.dart';
 
 abstract class CategoryState {
   const CategoryState();
 }
 
 class GetCategorySuccess extends CategoryState{
-  final List<Category> listCategory;
+  final List<Category>? listCategory;
   const GetCategorySuccess({@required this.listCategory});
 }
 

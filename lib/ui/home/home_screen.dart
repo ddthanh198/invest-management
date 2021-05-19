@@ -1,21 +1,16 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:invest_management/blocs/home_bloc.dart';
-import 'package:invest_management/model/asset.dart';
-import 'package:invest_management/model/category.dart';
-import 'package:invest_management/model/pie_data.dart';
+import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
-import 'package:invest_management/states/home_state.dart';
-import 'package:invest_management/ui/category_screen.dart';
+import 'package:invest_management/ui/category/category_screen.dart';
+import 'package:invest_management/ui/home/home_bloc.dart';
+import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 
 class HomeScreen extends StatefulWidget {
-  final AssetRepository repository;
+  final AssetRepository? repository;
   const HomeScreen({@required this.repository});
 
   @override
@@ -83,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: BlocBuilder <HomeBloc, HomeState>(
           builder: (context, homeState) {
             if(homeState is GetDataAssetSuccess) {
-              return assetList(homeState.listCategory);
+              return assetList(homeState.listCategory!);
             }
             return Text("no data");
             }
@@ -190,7 +185,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 SizedBox(width: 18),
-                                Text(categories[index].name, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                Text(categories[index].name!, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
                               ],
                             )
                         )
@@ -214,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(categories[index].assets[index2].name),
+                                        Text(categories[index].assets[index2].name!),
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           mainAxisAlignment: MainAxisAlignment.center,
