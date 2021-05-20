@@ -17,7 +17,12 @@ class CategoryBloc extends Bloc<CategoryEvent, CategoryState>{
     if(event is GetCategoryEvent) {
       try {
         List<Category>? categories = await repository?.getCategory();
-        categories?.add(AddCategoryModel());
+        if(categories == null) {
+          categories = List.empty(growable: true);
+        }
+
+        categories.add(AddCategoryModel(null, null, null, null));
+
         yield GetCategorySuccess(listCategory: categories);
       } catch(exception) {
         yield GetCategoryFailure();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
+import 'package:invest_management/ui/add_category/add_category_screen.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
 import 'package:invest_management/ui/category/category_state.dart';
@@ -55,7 +56,7 @@ class _CategoryScreenState extends State<CategoryScreen>{
           create: (context) => CategoryBloc(repository: widget.repository)..add(GetCategoryEvent()),
           child: BlocBuilder<CategoryBloc, CategoryState>(
               builder: (context, categoryState){
-                if(categoryState is GetCategorySuccess && categoryState.listCategory!.length > 0) {
+                if(categoryState is GetCategorySuccess && categoryState.listCategory != null && categoryState.listCategory!.length > 0) {
                   return Expanded(
                       child: ListView.separated(
                         itemCount: categoryState.listCategory!.length,
@@ -108,7 +109,25 @@ class _CategoryScreenState extends State<CategoryScreen>{
                                 ),
                                 dense: true,
                                 onTap: (){
-
+                                  showModalBottomSheet<void>(
+                                      isScrollControlled: true,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:BorderRadius.only(
+                                              topLeft: Radius.circular(12),
+                                              topRight: Radius.circular(12)
+                                          )
+                                      ),
+                                      backgroundColor: Colors.white,
+                                      context: context,
+                                      builder: (BuildContext buildContext) {
+                                        return FractionallySizedBox(
+                                          heightFactor: 0.85,
+                                          child: AddCategoryScreen(
+                                              repository: widget.repository
+                                          )
+                                        );
+                                      }
+                                  );
                                 },
                               ),
                             );

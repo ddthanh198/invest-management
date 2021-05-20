@@ -14,7 +14,7 @@ import 'package:invest_management/data/model/category.dart';
 class Asset {
   @PrimaryKey(autoGenerate: true)
   @ColumnInfo(name: 'id')
-  int? id;
+  final int? id;
 
   @ColumnInfo(name: 'category_id') int? categoryId;
   @ColumnInfo(name: 'name') String? name;
@@ -22,5 +22,5 @@ class Asset {
   @ColumnInfo(name: 'profit') int? profit;
   @ColumnInfo(name: 'profitPercent') int? profitPercent;
 
-  Asset({this.name, this.capital, this.profit});
+  Asset(this.id, this.categoryId, this.name, this.capital, this.profit, this.profitPercent);
 }

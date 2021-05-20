@@ -55,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               onPressed: () {
                 showModalBottomSheet<void>(
+                    isScrollControlled: true,
                     shape: RoundedRectangleBorder(
                       borderRadius:BorderRadius.only(
                         topLeft: Radius.circular(12),
@@ -64,7 +65,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     backgroundColor: Colors.white,
                     context: context,
                     builder: (BuildContext buildContext) {
-                      return CategoryScreen(repository: widget.repository);
+                      return FractionallySizedBox(
+                          heightFactor: 0.85,
+                          child: CategoryScreen(
+                              repository: widget.repository
+                          )
+                      );
                     }
                 );
               }
@@ -77,11 +83,11 @@ class _HomeScreenState extends State<HomeScreen> {
         color: HexColor("#F2F5FA"),
         child: BlocBuilder <HomeBloc, HomeState>(
           builder: (context, homeState) {
-            if(homeState is GetDataAssetSuccess) {
+            if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
               return assetList(homeState.listCategory!);
             }
             return Text("no data");
-            }
+          }
         )
       ),
     );

@@ -6,7 +6,7 @@ class AddCategoryState {
 
 class PickColorSuccess extends AddCategoryState {
   final String? color;
-  const PickColorSuccess({@required this.color});
+  const PickColorSuccess(this.color);
 }
 
 class PickColorFailure extends AddCategoryState{}
@@ -17,3 +17,6 @@ class PickImageSuccess extends AddCategoryState {
 }
 
 class PickImageFailure extends AddCategoryState {}
+
+class SaveCategorySuccess extends AddCategoryState {}
+class SaveCategoryFailure extends AddCategoryState {}

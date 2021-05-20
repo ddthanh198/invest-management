@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invest_management/blocs/asset_bloc_observer.dart';
+import 'package:invest_management/data/db/asset_dao.dart';
 import 'package:invest_management/data/db/database.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:bloc/bloc.dart';
@@ -13,7 +14,8 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = AssetBlocObserver();
   AssetDatabase? assetDb = await $FloorAssetDatabase.databaseBuilder('asset_database.db').build();
-  AssetRepository _repository = AssetRepository(assetDatabase: assetDb);
+  AssetDao assetDao = assetDb.assetDao;
+  AssetRepository _repository = AssetRepository(assetDao: assetDao);
   runApp(MyApp(assetDatabase: assetDb, repository: _repository));
 }
 
