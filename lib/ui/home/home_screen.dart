@@ -1,21 +1,19 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:invest_management/blocs/home_bloc.dart';
-import 'package:invest_management/model/asset.dart';
-import 'package:invest_management/model/category.dart';
-import 'package:invest_management/model/pie_data.dart';
+import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
-import 'package:invest_management/states/home_state.dart';
-import 'package:invest_management/ui/category_screen.dart';
+import 'package:invest_management/ui/category/category_bloc.dart';
+import 'package:invest_management/ui/category/category_event.dart';
+import 'package:invest_management/ui/category/category_screen.dart';
+import 'package:invest_management/ui/home/home_bloc.dart';
+import 'package:invest_management/ui/home/home_event.dart';
+import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 
 class HomeScreen extends StatefulWidget {
-  final AssetRepository repository;
+  final AssetRepository? repository;
   const HomeScreen({@required this.repository});
 
   @override
@@ -23,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,14 +38,13 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(0),
             width: 36,
             child: IconButton(
-              icon: Image.asset(
-                IconsResource.ic_reload,
-                color: Colors.black,
-
-              ),
-              onPressed: () {
-
-              }
+                icon: Image.asset(
+                  IconsResource.ic_reload,
+                  color: Colors.black,
+                ),
+                onPressed: () {
+                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                }
             ),
           ),
           Container(
@@ -54,40 +52,52 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(0),
             width: 36,
             child: IconButton(
-              icon: Image.asset(
-                IconsResource.ic_add_asset,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                showModalBottomSheet<void>(
-                    shape: RoundedRectangleBorder(
-                      borderRadius:BorderRadius.only(
-                        topLeft: Radius.circular(12),
-                        topRight: Radius.circular(12)
-                      )
-                    ),
-                    backgroundColor: Colors.white,
-                    context: context,
-                    builder: (BuildContext buildContext) {
-                      return CategoryScreen(repository: widget.repository);
-                    }
-                );
-              }
+                icon: Image.asset(
+                  IconsResource.ic_add_asset,
+                  color: Colors.black,
+                ),
+                onPressed: () {
+                  showModalBottomSheet<void>(
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                          borderRadius:BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12)
+                          )
+                      ),
+                      backgroundColor: Colors.white,
+                      context: context,
+                      builder: (BuildContext buildContext) {
+                        return FractionallySizedBox(
+                            heightFactor: 0.85,
+                            child: BlocProvider(
+                              create: (BuildContext context) => CategoryBloc(repository: widget.repository)..add(GetCategoryEvent()),
+                              child: CategoryScreen(
+                                repository: widget.repository,
+                                updateCallback: () {
+                                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                                },
+                              ),
+                            )
+                        );
+                      }
+                  );
+                }
             ),
           )
         ],
       ),
       body: Container(
-        padding: const EdgeInsets.all(5),
-        color: HexColor("#F2F5FA"),
-        child: BlocBuilder <HomeBloc, HomeState>(
-          builder: (context, homeState) {
-            if(homeState is GetDataAssetSuccess) {
-              return assetList(homeState.listCategory);
-            }
-            return Text("no data");
-            }
-        )
+          padding: const EdgeInsets.all(5),
+          color: HexColor("#F2F5FA"),
+          child: BlocBuilder <HomeBloc, HomeState>(
+              builder: (context, homeState) {
+                if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
+                  return assetList(homeState.listCategory!);
+                }
+                return Text("no data");
+              }
+          )
       ),
     );
   }
@@ -190,7 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ),
                                 SizedBox(width: 18),
-                                Text(categories[index].name, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                Text(categories[index].name!, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
                               ],
                             )
                         )
@@ -214,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text(categories[index].assets[index2].name),
+                                        Text(categories[index].assets[index2].name!),
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           mainAxisAlignment: MainAxisAlignment.center,

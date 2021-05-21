@@ -1,33 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invest_management/blocs/asset_bloc_observer.dart';
-import 'package:invest_management/blocs/home_bloc.dart';
+import 'package:invest_management/data/db/asset_dao.dart';
+import 'package:invest_management/data/db/database.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
-import 'package:invest_management/ui/home_screen.dart';
 import 'package:bloc/bloc.dart';
+import 'package:invest_management/ui/add_category/add_category_bloc.dart';
+import 'package:invest_management/ui/category/category_bloc.dart';
+import 'package:invest_management/ui/home/home_bloc.dart';
+import 'package:invest_management/ui/home/home_screen.dart';
+import 'ui/home/home_event.dart';
 
-import 'events/home_event.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = AssetBlocObserver();
-  runApp(MyApp());
+  AssetDatabase? assetDb = await $FloorAssetDatabase.databaseBuilder('asset_database.db').build();
+  AssetDao assetDao = assetDb.assetDao;
+  AssetRepository _repository = AssetRepository(assetDao: assetDao);
+  runApp(MyApp(assetDatabase: assetDb, repository: _repository));
 }
 
 class MyApp extends StatelessWidget {
-  final AssetRepository _repository = AssetRepository();
+
+  final AssetDatabase? assetDatabase;
+  final AssetRepository? repository;
+  const MyApp({@required this.assetDatabase, @required this.repository});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return BlocProvider(
+      create: (BuildContext context) => HomeBloc(repository: repository)..add(GetDataAssetEvent()),
+      child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          home: HomeScreen(repository: repository)
       ),
-      home: BlocProvider(
-        create: (context) => HomeBloc(repository: _repository)
-                                ..add(GetDataAssetEvent()),
-        child: HomeScreen(repository: _repository,),
-      )
     );
   }
 }
