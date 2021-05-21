@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
+import 'package:invest_management/ui/add_asset/add_asset_bloc.dart';
+import 'package:invest_management/ui/add_asset/add_asset_screen.dart';
 import 'package:invest_management/ui/add_category/add_category_bloc.dart';
 import 'package:invest_management/ui/add_category/add_category_screen.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
@@ -88,7 +90,32 @@ class _CategoryScreenState extends State<CategoryScreen>{
                               ),
                               dense: true,
                               onTap: (){
-
+                                showModalBottomSheet<void>(
+                                    isScrollControlled: true,
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:BorderRadius.only(
+                                            topLeft: Radius.circular(12),
+                                            topRight: Radius.circular(12)
+                                        )
+                                    ),
+                                    backgroundColor: Colors.white,
+                                    context: context,
+                                    builder: (BuildContext buildContext) {
+                                      return FractionallySizedBox(
+                                          heightFactor: 0.85,
+                                          child: BlocProvider(
+                                            create: (BuildContext context) => AddAssetBloc(repository: widget.repository),
+                                            child: AddAssetScreen(
+                                              repository: widget.repository,
+                                              updateCallback: (){
+                                                BlocProvider.of<CategoryBloc>(context).add(GetCategoryEvent());
+                                              },
+                                              category: categoryState.listCategory![index],
+                                            ),
+                                          )
+                                      );
+                                    }
+                                );
                               },
                             );
                           } else {
