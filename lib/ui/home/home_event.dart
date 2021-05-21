@@ -1,8 +1,4 @@
 
-abstract class HomeEvent {
-  const HomeEvent();
-}
+abstract class HomeEvent {}
 
-class GetDataAssetEvent extends HomeEvent{
-  const GetDataAssetEvent();
-}
+class GetDataAssetEvent extends HomeEvent{}

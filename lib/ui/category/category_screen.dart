@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
+import 'package:invest_management/ui/add_category/add_category_bloc.dart';
 import 'package:invest_management/ui/add_category/add_category_screen.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
 import 'package:invest_management/ui/category/category_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
 
+// ignore: must_be_immutable
 class CategoryScreen extends StatefulWidget {
   final AssetRepository? repository;
-  const CategoryScreen({@required this.repository});
+  VoidCallback? updateCallback;
+  CategoryScreen({@required this.repository, this.updateCallback});
 
   @override
   State<StatefulWidget> createState() => _CategoryScreenState();
@@ -45,6 +48,7 @@ class _CategoryScreenState extends State<CategoryScreen>{
                     color: Colors.black,
                   ),
                   onPressed: () {
+                    widget.updateCallback?.call();
                     Navigator.of(context).pop();
                   }
               ),
@@ -52,13 +56,11 @@ class _CategoryScreenState extends State<CategoryScreen>{
           ],
         ),
         Divider(height: 1,),
-        BlocProvider(
-          create: (context) => CategoryBloc(repository: widget.repository)..add(GetCategoryEvent()),
-          child: BlocBuilder<CategoryBloc, CategoryState>(
-              builder: (context, categoryState){
-                if(categoryState is GetCategorySuccess && categoryState.listCategory != null && categoryState.listCategory!.length > 0) {
-                  return Expanded(
-                      child: ListView.separated(
+        BlocBuilder<CategoryBloc, CategoryState>(
+            builder: (context, categoryState){
+              if(categoryState is GetCategorySuccess && categoryState.listCategory != null && categoryState.listCategory!.length > 0) {
+                return Expanded(
+                    child: ListView.separated(
                         itemCount: categoryState.listCategory!.length,
                         separatorBuilder: (context, index) {return Divider(
                           height: 1,
@@ -121,10 +123,16 @@ class _CategoryScreenState extends State<CategoryScreen>{
                                       context: context,
                                       builder: (BuildContext buildContext) {
                                         return FractionallySizedBox(
-                                          heightFactor: 0.85,
-                                          child: AddCategoryScreen(
-                                              repository: widget.repository
-                                          )
+                                            heightFactor: 0.85,
+                                            child: BlocProvider(
+                                              create: (BuildContext context) => AddCategoryBloc(repository: widget.repository),
+                                              child: AddCategoryScreen(
+                                                repository: widget.repository,
+                                                updateCallback: (){
+                                                  BlocProvider.of<CategoryBloc>(context).add(GetCategoryEvent());
+                                                },
+                                              ),
+                                            )
                                         );
                                       }
                                   );
@@ -133,12 +141,11 @@ class _CategoryScreenState extends State<CategoryScreen>{
                             );
                           }
                         }
-                      )
-                  );
-                }
-                return Text("no data");
-              })
-        )
+                    )
+                );
+              }
+              return Text("no data");
+            })
       ],
     );
   }

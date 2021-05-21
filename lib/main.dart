@@ -5,6 +5,8 @@ import 'package:invest_management/data/db/asset_dao.dart';
 import 'package:invest_management/data/db/database.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:bloc/bloc.dart';
+import 'package:invest_management/ui/add_category/add_category_bloc.dart';
+import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_screen.dart';
 import 'ui/home/home_event.dart';
@@ -27,16 +29,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return BlocProvider(
+      create: (BuildContext context) => HomeBloc(repository: repository)..add(GetDataAssetEvent()),
+      child: MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          home: HomeScreen(repository: repository)
       ),
-      home: BlocProvider(
-        create: (context) => HomeBloc(repository: repository)
-                                ..add(GetDataAssetEvent()),
-        child: HomeScreen(repository: repository,),
-      )
     );
   }
 }

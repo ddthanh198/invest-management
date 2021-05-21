@@ -83,7 +83,7 @@ class _$AssetDatabase extends AssetDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `asset` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category_id` INTEGER, `name` TEXT, `capital` INTEGER, `profit` INTEGER, `profitPercent` INTEGER, FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `category` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `custom_name` TEXT, `image` TEXT, `color` TEXT)');
+            'CREATE TABLE IF NOT EXISTS `category` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `image` TEXT, `color` TEXT)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -105,7 +105,7 @@ class _$AssetDao extends AssetDao {
             'category',
             (Category item) => <String, Object?>{
                   'id': item.id,
-                  'custom_name': item.name,
+                  'name': item.name,
                   'image': item.image,
                   'color': item.color
                 });
@@ -122,9 +122,10 @@ class _$AssetDao extends AssetDao {
   Future<List<Category>> findAllCategories() async {
     return _queryAdapter.queryList('SELECT * FROM category',
         mapper: (Map<String, Object?> row) => Category(
-            name: row['custom_name'] as String?,
-            image: row['image'] as String?,
-            color: row['color'] as String?));
+            row['id'] as int?,
+            row['name'] as String?,
+            row['image'] as String?,
+            row['color'] as String?));
   }
 
   @override
