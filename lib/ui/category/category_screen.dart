@@ -80,7 +80,7 @@ class _CategoryScreenState extends State<CategoryScreen>{
                                 height: 24,
                                 width: 24,
                                 child: Image.asset(
-                                  IconsResource.ic_bank,
+                                  categoryState.listCategory![index].image!,
                                   color: Colors.black,
                                 ),
                               ),

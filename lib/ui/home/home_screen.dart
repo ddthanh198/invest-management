@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/data/model/category.dart';
+import 'package:invest_management/data/model/pie_data.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
@@ -10,6 +11,7 @@ import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -151,27 +153,27 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                 ),
-                // SizedBox(
-                //   height: 180,
-                //   width: 180,
-                //   child: SfCircularChart(
-                //       series: <DoughnutSeries<PieData, String>>[
-                //         DoughnutSeries<PieData, String>(
-                //             innerRadius: "50%",
-                //             dataSource: [
-                //               PieData("hello", 10, Colors.yellow ,"10%"),
-                //               PieData("hello", 20, Colors.red,"20%"),
-                //               PieData("hello", 30, Colors.blue,"30%"),
-                //               PieData("hello", 40, Colors.green,"40%"),
-                //             ],
-                //             pointColorMapper: (PieData data, _) => data.color,
-                //             xValueMapper: (PieData data, _) => data.xData,
-                //             yValueMapper: (PieData data, _) => data.yData,
-                //             dataLabelMapper: (PieData data, _) => data.text,
-                //             dataLabelSettings: DataLabelSettings(isVisible: true)),
-                //       ]
-                //   ),
-                // )
+                SizedBox(
+                  height: 180,
+                  width: 180,
+                  child: SfCircularChart(
+                      series: <DoughnutSeries<PieData, String>>[
+                        DoughnutSeries<PieData, String>(
+                            innerRadius: "50%",
+                            dataSource: [
+                              PieData("hello", 10, Colors.yellow ,"10%"),
+                              PieData("hello", 20, Colors.red,"20%"),
+                              PieData("hello", 30, Colors.blue,"30%"),
+                              PieData("hello", 40, Colors.green,"40%"),
+                            ],
+                            pointColorMapper: (PieData data, _) => data.color,
+                            xValueMapper: (PieData data, _) => data.xData,
+                            yValueMapper: (PieData data, _) => data.yData,
+                            dataLabelMapper: (PieData data, _) => data.text,
+                            dataLabelSettings: DataLabelSettings(isVisible: true)),
+                      ]
+                  ),
+                )
               ],
             )
         ),
@@ -190,17 +192,27 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Align(
                             alignment: Alignment.centerLeft,
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: Image.asset(
-                                    IconsResource.ic_bank,
-                                    color: Colors.black,
-                                  ),
+                                Row(
+                                  children: [
+                                    Image.asset(
+                                      ((categories[index].image != null) ? categories[index].image : IconsResource.ic_other)!,
+                                      color: HexColor(((categories[index].color != null) ? categories[index].color : "#000000")!,),
+                                      height: 30,
+                                      width: 30,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(categories[index].name!, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                  ],
                                 ),
-                                SizedBox(width: 18),
-                                Text(categories[index].name!, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+                                    Text("${categories[index].totalCapital}", style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                    Text("${categories[index].totalProfit}", style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                  ],
+                                )
                               ],
                             )
                         )

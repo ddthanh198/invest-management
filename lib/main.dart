@@ -24,8 +24,8 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
 
   final AssetDatabase? assetDatabase;
-  final AssetRepository? repository;
-  const MyApp({@required this.assetDatabase, @required this.repository});
+  final AssetRepository repository;
+  const MyApp({@required this.assetDatabase, required this.repository});
 
   @override
   Widget build(BuildContext context) {
