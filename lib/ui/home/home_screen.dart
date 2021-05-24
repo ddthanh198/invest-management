@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/data/model/pie_data.dart';
+import 'package:invest_management/data/model/triple.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
@@ -11,8 +12,8 @@ import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
+import 'package:invest_management/utils/extension/number_extension.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-
 
 class HomeScreen extends StatefulWidget {
   final AssetRepository? repository;
@@ -95,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder <HomeBloc, HomeState>(
               builder: (context, homeState) {
                 if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
-                  return assetList(homeState.listCategory!);
+                  return assetList(homeState.listCategory!, homeState.listPieData!, homeState.totalDataTriple!);
                 }
                 return Text("no data");
               }
@@ -104,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget assetList(List<Category> categories) {
+  Widget assetList(List<Category> categories, List<PieData> listPieData, Triple<int, int, int> totalData) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
@@ -113,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(15.0),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -133,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         margin: EdgeInsets.all(2),
                         child: Text(
-                          "1000.000.000 vnd",
+                          "${parseCurrency(totalData.first)}",
                           style: TextStyle(
                               fontSize: 16,
                               color: Colors.black
@@ -143,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         margin: EdgeInsets.all(2),
                         child: Text(
-                          "-20.000.000 (-50 %)",
+                          "${totalData.second} (${totalData.third} %)",
                           style: TextStyle(
                               fontSize: 16,
                               color: Colors.red
@@ -160,12 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       series: <DoughnutSeries<PieData, String>>[
                         DoughnutSeries<PieData, String>(
                             innerRadius: "50%",
-                            dataSource: [
-                              PieData("hello", 10, Colors.yellow ,"10%"),
-                              PieData("hello", 20, Colors.red,"20%"),
-                              PieData("hello", 30, Colors.blue,"30%"),
-                              PieData("hello", 40, Colors.green,"40%"),
-                            ],
+                            dataSource: listPieData,
                             pointColorMapper: (PieData data, _) => data.color,
                             xValueMapper: (PieData data, _) => data.xData,
                             yValueMapper: (PieData data, _) => data.yData,
@@ -208,6 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
                                     Text("${categories[index].totalCapital}", style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
                                     Text("${categories[index].totalProfit}", style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
