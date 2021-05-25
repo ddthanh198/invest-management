@@ -98,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
                   return assetList(homeState.listCategory!, homeState.listPieData!, homeState.totalDataTriple!);
                 }
-                return Text("no data");
+                return noData();
               }
           )
       ),
@@ -184,57 +184,62 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: ExpansionTile(
-                    title: SizedBox(
-                        height: 50,
-                        child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Image.asset(
-                                      ((categories[index].image != null) ? categories[index].image : IconsResource.ic_other)!,
-                                      color: HexColor(((categories[index].color != null) ? categories[index].color : "#000000")!,),
-                                      height: 30,
-                                      width: 30,
-                                    ),
-                                    SizedBox(width: 12),
-                                    Text(
-                                        categories[index].name!,
-                                        style: new TextStyle(
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black
-                                        )
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                        "${parseCurrency(categories[index].totalCapital)}",
-                                        style: new TextStyle(
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black
-                                        )
-                                    ),
-                                    Text(
-                                        "${parseCurrencyProfitPercentPlus(categories[index].totalProfit, categories[index].totalProfitPercent)}",
-                                        style: new TextStyle(
-                                            fontSize: 14.0,
-                                            fontWeight: FontWeight.bold,
-                                            color: categories[index].totalProfit >= 0 ? Colors.green : Colors.red
-                                        )
-                                    ),
-                                  ],
-                                )
-                              ],
-                            )
-                        )
+                    title: InkWell(
+                      onLongPress: () {
+                        print("onLongPress");
+                      },
+                      child: SizedBox(
+                          height: 50,
+                          child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Image.asset(
+                                        ((categories[index].image != null) ? categories[index].image : IconsResource.ic_other)!,
+                                        color: HexColor(((categories[index].color != null) ? categories[index].color : "#000000")!,),
+                                        height: 30,
+                                        width: 30,
+                                      ),
+                                      SizedBox(width: 12),
+                                      Text(
+                                          categories[index].name!,
+                                          style: new TextStyle(
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black
+                                          )
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                          "${parseCurrency(categories[index].totalCapital)}",
+                                          style: new TextStyle(
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.black
+                                          )
+                                      ),
+                                      Text(
+                                          "${parseCurrencyProfitPercentPlus(categories[index].totalProfit, categories[index].totalProfitPercent)}",
+                                          style: new TextStyle(
+                                              fontSize: 14.0,
+                                              fontWeight: FontWeight.bold,
+                                              color: categories[index].totalProfit >= 0 ? Colors.green : Colors.red
+                                          )
+                                      ),
+                                    ],
+                                  )
+                                ],
+                              )
+                          )
+                      ),
                     ),
                     children: [
                       SizedBox (
@@ -248,32 +253,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Divider()
                                 ),
                             itemBuilder: (context, index2) {
-                              return Container(
-                                  height: 55,
-                                  child: Container(
-                                    padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(categories[index].assets[index2].name!),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          children: [
-                                            Text(
-                                              parseCurrency(categories[index].assets[index2].capital),
-                                            ),
-                                            Text(
-                                              parseCurrencyProfitPercentPlus(categories[index].assets[index2].profit, categories[index].assets[index2].profitPercent!),
-                                              style: TextStyle(
-                                                  color: categories[index].assets[index2].profit! > 0 ? Colors.green : Colors.red
+                              return InkWell(
+                                onTap: () {
+                                  print("onTap");
+                                },
+                                onLongPress: () {
+                                  print("onLongPress");
+                                },
+                                child: Container(
+                                    height: 55,
+                                    child: Container(
+                                      padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(categories[index].assets[index2].name!),
+                                          Column(
+                                            crossAxisAlignment: CrossAxisAlignment.end,
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text(
+                                                parseCurrency(categories[index].assets[index2].capital),
                                               ),
-                                            ),
-                                          ],
-                                        )
-                                      ],
-                                    ),
-                                  )
+                                              Text(
+                                                parseCurrencyProfitPercentPlus(categories[index].assets[index2].profit, categories[index].assets[index2].profitPercent!),
+                                                style: TextStyle(
+                                                    color: categories[index].assets[index2].profit! > 0 ? Colors.green : Colors.red
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                ),
                               );
                             }
                         ),
@@ -285,6 +298,70 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         )
       ],
+    );
+  }
+
+  Widget noData() {
+    return Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15.0),
+        ),
+        child: Wrap(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        margin: EdgeInsets.all(2),
+                        child: const Text(
+                          "Tổng nguồn vốn",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        margin: EdgeInsets.all(2),
+                        child: Text(
+                          "${parseCurrency(0)}",
+                          style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 180,
+                  width: 180,
+                  child: SfCircularChart(
+                      series: <DoughnutSeries<PieData, String>>[
+                        DoughnutSeries<PieData, String>(
+                            innerRadius: "50%",
+                            dataSource: [
+                              PieData("capital", 1, HexColor("#1C87E6") ,"0%"),
+                            ],
+                            pointColorMapper: (PieData data, _) => data.color,
+                            xValueMapper: (PieData data, _) => data.xData,
+                            yValueMapper: (PieData data, _) => data.yData,
+                            dataLabelMapper: (PieData data, _) => data.text,
+                            dataLabelSettings: DataLabelSettings(isVisible: true)),
+                      ]
+                  ),
+                )
+              ],
+            ),
+          ]
+        )
     );
   }
 }
