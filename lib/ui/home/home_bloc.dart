@@ -69,11 +69,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             },
 
             for(var i = 0; i < categories.length; i++) {
-              capitalPercent = categories[i].totalCapital * 100 ~/ totalCapital,
-              totalProfit += categories[i].totalProfit,
-              pieData =  PieData("capital", categories[i].totalCapital, HexColor(categories[i].color!) ,"$capitalPercent%"),
-              if(categories[i].totalCapital != 0) {
-                listPieData.add(pieData)
+              if(totalCapital != 0) {
+                capitalPercent = categories[i].totalCapital * 100 ~/ totalCapital,
+                totalProfit += categories[i].totalProfit,
+                pieData =  PieData("capital", categories[i].totalCapital, HexColor(categories[i].color!) ,"$capitalPercent%"),
+                if(categories[i].totalCapital != 0) {
+                  listPieData.add(pieData)
+                }
               }
             },
 

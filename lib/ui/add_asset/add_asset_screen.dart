@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invest_management/data/model/asset.dart';
 import 'package:invest_management/data/model/category.dart';
@@ -8,11 +9,25 @@ import 'package:invest_management/ui/add_asset/add_asset_bloc.dart';
 import 'package:invest_management/ui/add_asset/add_asset_event.dart';
 
 // ignore: must_be_immutable
-class AddAssetScreen extends StatelessWidget {
+class AddAssetScreen extends StatefulWidget {
   final AssetRepository? repository;
   VoidCallback? updateCallback;
   Category category;
+
   AddAssetScreen({@required this.repository, this.updateCallback,required this.category});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _AddAssetScreenState(repository: repository, updateCallback: updateCallback, category: category);
+  }
+}
+
+class _AddAssetScreenState extends State<AddAssetScreen> {
+  final AssetRepository? repository;
+  VoidCallback? updateCallback;
+  Category category;
+
+  _AddAssetScreenState({@required this.repository, this.updateCallback,required this.category});
 
   final TextEditingController _assetNameController = TextEditingController();
   final TextEditingController _capitalController = TextEditingController();
@@ -97,9 +112,10 @@ class AddAssetScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(top: 16),
                       height: 50,
                       child: TextField(
+                        keyboardType: TextInputType.number,
                         controller: _capitalController,
                         decoration: InputDecoration(
-                          labelText: 'Vốn*',
+                          labelText: 'Vốn (đ)',
                           border: new OutlineInputBorder(
                             borderRadius: const BorderRadius.all(
                               const Radius.circular(10.0),
@@ -112,9 +128,19 @@ class AddAssetScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(top: 16),
                       height: 50,
                       child: TextField(
+                        onChanged: (profit) {
+                          int capital = (_capitalController.text != "") ? int.parse(_capitalController.text) : 0;
+                          int profitPercent = 0;
+
+                          if(capital != 0 && profit != "") {
+                            profitPercent = int.parse(profit) * 100 ~/ capital;
+                          }
+                          _profitPercentController.text = profitPercent.toString();
+                        },
+                        keyboardType: TextInputType.number,
                         controller: _profitController,
                         decoration: InputDecoration(
-                          labelText: 'Lợi nhuận',
+                          labelText: 'Lợi nhuận (đ)',
                           border: new OutlineInputBorder(
                             borderRadius: const BorderRadius.all(
                               const Radius.circular(10.0),
@@ -127,9 +153,18 @@ class AddAssetScreen extends StatelessWidget {
                       margin: const EdgeInsets.only(top: 16),
                       height: 50,
                       child: TextField(
+                        onChanged: (profitPercent) {
+                          int capital = (_capitalController.text != "") ? int.parse(_capitalController.text) : 0;
+                          int profit = 0;
+                          if(capital != 0 && profitPercent != "") {
+                            profit = int.parse(profitPercent) * capital ~/ 100;
+                          }
+                          _profitController.text = profit.toString();
+                        },
+                        keyboardType: TextInputType.number,
                         controller: _profitPercentController,
                         decoration: InputDecoration(
-                          labelText: 'Lãi suất',
+                          labelText: 'Lãi suất (%)',
                           border: new OutlineInputBorder(
                             borderRadius: const BorderRadius.all(
                               const Radius.circular(10.0),
@@ -140,15 +175,23 @@ class AddAssetScreen extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Asset asset = Asset(
-                          null,
-                          category.id,
-                          _assetNameController.text,
-                          int.parse(_capitalController.text),
-                          int.parse(_profitController.text),
-                          int.parse(_profitPercentController.text),
-                        );
-                        BlocProvider.of<AddAssetBloc>(context).add(SaveAssetEvent(asset));
+                        if( _assetNameController.text == "" ||
+                            _capitalController.text == "" ||
+                            _profitController.text == "" ||
+                            _profitPercentController.text == "") {
+
+
+                        } else {
+                          Asset asset = Asset(
+                            null,
+                            category.id,
+                            _assetNameController.text,
+                            int.parse(_capitalController.text),
+                            int.parse(_profitController.text),
+                            int.parse(_profitPercentController.text),
+                          );
+                          BlocProvider.of<AddAssetBloc>(context).add(SaveAssetEvent(asset));
+                        }
                       },
                       child: Text("Lưu"),
                     )

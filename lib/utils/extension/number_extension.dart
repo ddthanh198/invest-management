@@ -6,5 +6,5 @@ String parseCurrency(int? currency) {
 }
 
 String parseCurrencyProfitPercentPlus(int? currency, int profitPercent) {
-  return "${currency! >= 0 ? "+" : "-"}${parseCurrency(currency)} (${currency! >= 0 ? "+" : "-"}$profitPercent%)";
+  return "${currency! >= 0 ? "+" : ""}${parseCurrency(currency)} (${currency >= 0 ? "+" : ""}$profitPercent%)";
 }
