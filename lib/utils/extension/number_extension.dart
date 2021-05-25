@@ -5,6 +5,6 @@ String parseCurrency(int? currency) {
   return "${oCcy.format(currency)} đ";
 }
 
-String parseCurrencyPlus(int? currency) {
-  return "";
+String parseCurrencyProfitPercentPlus(int? currency, int profitPercent) {
+  return "${currency! >= 0 ? "+" : "-"}${parseCurrency(currency)} (${currency! >= 0 ? "+" : "-"}$profitPercent%)";
 }

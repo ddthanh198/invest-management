@@ -145,10 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         margin: EdgeInsets.all(2),
                         child: Text(
-                          "${totalData.second} (${totalData.third} %)",
+                          "${parseCurrencyProfitPercentPlus(totalData.second, totalData.third!)}",
                           style: TextStyle(
                               fontSize: 16,
-                              color: Colors.red
+                              color: totalData.second! >= 0 ? Colors.green : Colors.red
                           ),
                         ),
                       ),
@@ -200,15 +200,36 @@ class _HomeScreenState extends State<HomeScreen> {
                                       width: 30,
                                     ),
                                     SizedBox(width: 12),
-                                    Text(categories[index].name!, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                    Text(
+                                        categories[index].name!,
+                                        style: new TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+                                        )
+                                    ),
                                   ],
                                 ),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    Text("${categories[index].totalCapital}", style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
-                                    Text("${categories[index].totalProfit}", style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                    Text(
+                                        "${parseCurrency(categories[index].totalCapital)}",
+                                        style: new TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+                                        )
+                                    ),
+                                    Text(
+                                        "${parseCurrencyProfitPercentPlus(categories[index].totalProfit, categories[index].totalProfitPercent)}",
+                                        style: new TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            color: categories[index].totalProfit >= 0 ? Colors.green : Colors.red
+                                        )
+                                    ),
                                   ],
                                 )
                               ],
@@ -237,10 +258,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text(categories[index].assets[index2].name!),
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                           children: [
-                                            Text(categories[index].assets[index2].capital.toString()),
-                                            Text(categories[index].assets[index2].profit.toString())
+                                            Text(
+                                              parseCurrency(categories[index].assets[index2].capital),
+                                            ),
+                                            Text(
+                                              parseCurrencyProfitPercentPlus(categories[index].assets[index2].profit, categories[index].assets[index2].profitPercent!),
+                                              style: TextStyle(
+                                                  color: categories[index].assets[index2].profit! > 0 ? Colors.green : Colors.red
+                                              ),
+                                            ),
                                           ],
                                         )
                                       ],
