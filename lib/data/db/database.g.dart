@@ -108,6 +108,17 @@ class _$AssetDao extends AssetDao {
                   'name': item.name,
                   'image': item.image,
                   'color': item.color
+                }),
+        _assetInsertionAdapter = InsertionAdapter(
+            database,
+            'asset',
+            (Asset item) => <String, Object?>{
+                  'id': item.id,
+                  'category_id': item.categoryId,
+                  'name': item.name,
+                  'capital': item.capital,
+                  'profit': item.profit,
+                  'profitPercent': item.profitPercent
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -117,6 +128,8 @@ class _$AssetDao extends AssetDao {
   final QueryAdapter _queryAdapter;
 
   final InsertionAdapter<Category> _categoryInsertionAdapter;
+
+  final InsertionAdapter<Asset> _assetInsertionAdapter;
 
   @override
   Future<List<Category>> findAllCategories() async {
@@ -129,7 +142,25 @@ class _$AssetDao extends AssetDao {
   }
 
   @override
+  Future<List<Asset>> findAllAssetWithCategoryId(int categoryId) async {
+    return _queryAdapter.queryList('SELECT * FROM asset WHERE category_id = ?1',
+        mapper: (Map<String, Object?> row) => Asset(
+            row['id'] as int?,
+            row['category_id'] as int?,
+            row['name'] as String?,
+            row['capital'] as int?,
+            row['profit'] as int?,
+            row['profitPercent'] as int?),
+        arguments: [categoryId]);
+  }
+
+  @override
   Future<void> insertCategory(Category category) async {
     await _categoryInsertionAdapter.insert(category, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> insertAsset(Asset asset) async {
+    await _assetInsertionAdapter.insert(asset, OnConflictStrategy.abort);
   }
 }

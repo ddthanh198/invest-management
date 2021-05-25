@@ -11,7 +11,13 @@ class AssetRepository {
   const AssetRepository({@required this.assetDao});
 
   Future<List<Category>?> getDataAsset() async {
+    List<Category> categories = await assetDao!.findAllCategories();
     return assetDao!.findAllCategories();
+
+  }
+
+  Future<List<Asset>> getAssetsWithCategoryId(int categoryId) async {
+    return assetDao!.findAllAssetWithCategoryId(categoryId);
   }
 
   Future<List<Category>?> getCategory() async {
@@ -20,6 +26,10 @@ class AssetRepository {
 
   Future<void> saveCategory(Category category) async {
     return assetDao!.insertCategory(category);
+  }
+
+  Future<void> saveAsset(Asset asset) async {
+    return assetDao!.insertAsset(asset);
   }
 
   // List<Category> _fakeData(){

@@ -7,10 +7,7 @@ import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/add_category/add_category_bloc.dart';
 import 'package:invest_management/ui/add_category/add_category_event.dart';
 import 'package:invest_management/ui/add_category/add_category_state.dart';
-import 'package:invest_management/ui/category/category_bloc.dart';
-import 'package:invest_management/ui/category/category_event.dart';
-import 'package:invest_management/ui/home/home_bloc.dart';
-import 'package:invest_management/ui/home/home_event.dart';
+import 'package:invest_management/ui/choose_image/choose_image_category_screen.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
 
 // ignore: must_be_immutable
@@ -26,7 +23,8 @@ class AddCategoryScreen extends StatefulWidget {
 class _AddCategoryScreenState extends State<AddCategoryScreen> {
   final TextEditingController _categoryNameController = TextEditingController();
 
-  String currentColor = "";
+  String currentColor = "#000000";
+  String currentImage = IconsResource.ic_other;
 
   @override
   void dispose() {
@@ -82,11 +80,33 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                   children: [
                     InkWell(
                       onTap: () {
-                        print("chọn biểu tượng");
+                        showModalBottomSheet<void>(
+                            isScrollControlled: true,
+                            shape: RoundedRectangleBorder(
+                                borderRadius:BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12)
+                                )
+                            ),
+                            backgroundColor: Colors.white,
+                            context: context,
+                            builder: (BuildContext buildContext) {
+                              return FractionallySizedBox(
+                                  heightFactor: 0.5,
+                                  child: ChooseImageCategoryScreen(
+                                    updateCallback: (image) {
+                                      currentImage = image;
+                                      BlocProvider.of<AddCategoryBloc>(context).add(RefreshColorOrImage());
+                                    },
+                                  )
+                              );
+                            }
+                        );
                       },
                       child: SizedBox(
                         height: 50,
                         child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                                 "Lựa chọn biểu tượng",
@@ -95,6 +115,11 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                                   color: Colors.black,
                                 )
                             ),
+                            Image.asset(
+                              currentImage,
+                              height: 40,
+                              width: 40,
+                            )
                           ],
                         ),
                       ),
@@ -111,7 +136,6 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                                   child: ColorPicker(
                                     pickerColor: Colors.red,
                                     onColorChanged: (Color color) {
-                                      print("color = ${color.value.toRadixString(16)}");
                                       currentColor = color.value.toRadixString(16);
                                     },
                                     colorPickerWidth: 300.0,
@@ -129,7 +153,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                               );
                             }
                         ).then((value) => {
-                          BlocProvider.of<AddCategoryBloc>(context).add(PickColorEvent(currentColor))
+                          BlocProvider.of<AddCategoryBloc>(context).add(RefreshColorOrImage())
                         }
                         );
                       },
@@ -148,9 +172,11 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                             SizedBox(
                                 height: 30,
                                 width: 30,
-                                child: ColorFiltered(
-                                    colorFilter: ColorFilter.mode(HexColor(getColor(addCategoryState)), BlendMode.modulate),
-                                    child: Image.asset(IconsResource.ic_pick_color)
+                                child: ClipOval(
+                                  child: ColorFiltered(
+                                      colorFilter: ColorFilter.mode(HexColor(currentColor), BlendMode.color),
+                                      child: Image.asset(IconsResource.ic_pick_color)
+                                  ),
                                 )
                             )
                           ],
@@ -177,8 +203,8 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                         Category category = Category(
                             null,
                             _categoryNameController.text,
-                            getColor(addCategoryState),
-                            ""
+                            currentImage,
+                            currentColor
                         );
                         BlocProvider.of<AddCategoryBloc>(context).add(SaveCategoryEvent(category: category));
                       },
@@ -190,12 +216,5 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
             })
       ],
     );
-  }
-
-
-
-  String getColor(AddCategoryState categoryState) {
-    if(categoryState is PickColorSuccess) return "#${categoryState.color}";
-    else return "#ffffff";
   }
 }

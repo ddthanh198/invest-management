@@ -13,4 +13,7 @@ class Category {
   @ColumnInfo(name: 'image') String? image;
   @ColumnInfo(name: 'color') String? color;
   @ignore List<Asset> assets = List.empty(growable: true);
+  @ignore int totalCapital = 0;
+  @ignore int totalProfit = 0;
+  @ignore int totalProfitPercent = 0;
 }

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/data/model/category.dart';
+import 'package:invest_management/data/model/pie_data.dart';
+import 'package:invest_management/data/model/triple.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
@@ -10,7 +12,8 @@ import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
-
+import 'package:invest_management/utils/extension/number_extension.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class HomeScreen extends StatefulWidget {
   final AssetRepository? repository;
@@ -93,7 +96,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: BlocBuilder <HomeBloc, HomeState>(
               builder: (context, homeState) {
                 if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
-                  return assetList(homeState.listCategory!);
+                  return assetList(homeState.listCategory!, homeState.listPieData!, homeState.totalDataTriple!);
                 }
                 return Text("no data");
               }
@@ -102,7 +105,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget assetList(List<Category> categories) {
+  Widget assetList(List<Category> categories, List<PieData> listPieData, Triple<int, int, int> totalData) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
@@ -111,6 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
               borderRadius: BorderRadius.circular(15.0),
             ),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
@@ -131,7 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         margin: EdgeInsets.all(2),
                         child: Text(
-                          "1000.000.000 vnd",
+                          "${parseCurrency(totalData.first)}",
                           style: TextStyle(
                               fontSize: 16,
                               color: Colors.black
@@ -141,37 +145,32 @@ class _HomeScreenState extends State<HomeScreen> {
                       Container(
                         margin: EdgeInsets.all(2),
                         child: Text(
-                          "-20.000.000 (-50 %)",
+                          "${parseCurrencyProfitPercentPlus(totalData.second, totalData.third!)}",
                           style: TextStyle(
                               fontSize: 16,
-                              color: Colors.red
+                              color: totalData.second! >= 0 ? Colors.green : Colors.red
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                // SizedBox(
-                //   height: 180,
-                //   width: 180,
-                //   child: SfCircularChart(
-                //       series: <DoughnutSeries<PieData, String>>[
-                //         DoughnutSeries<PieData, String>(
-                //             innerRadius: "50%",
-                //             dataSource: [
-                //               PieData("hello", 10, Colors.yellow ,"10%"),
-                //               PieData("hello", 20, Colors.red,"20%"),
-                //               PieData("hello", 30, Colors.blue,"30%"),
-                //               PieData("hello", 40, Colors.green,"40%"),
-                //             ],
-                //             pointColorMapper: (PieData data, _) => data.color,
-                //             xValueMapper: (PieData data, _) => data.xData,
-                //             yValueMapper: (PieData data, _) => data.yData,
-                //             dataLabelMapper: (PieData data, _) => data.text,
-                //             dataLabelSettings: DataLabelSettings(isVisible: true)),
-                //       ]
-                //   ),
-                // )
+                SizedBox(
+                  height: 180,
+                  width: 180,
+                  child: SfCircularChart(
+                      series: <DoughnutSeries<PieData, String>>[
+                        DoughnutSeries<PieData, String>(
+                            innerRadius: "50%",
+                            dataSource: listPieData,
+                            pointColorMapper: (PieData data, _) => data.color,
+                            xValueMapper: (PieData data, _) => data.xData,
+                            yValueMapper: (PieData data, _) => data.yData,
+                            dataLabelMapper: (PieData data, _) => data.text,
+                            dataLabelSettings: DataLabelSettings(isVisible: true)),
+                      ]
+                  ),
+                )
               ],
             )
         ),
@@ -190,17 +189,49 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Align(
                             alignment: Alignment.centerLeft,
                             child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: Image.asset(
-                                    IconsResource.ic_bank,
-                                    color: Colors.black,
-                                  ),
+                                Row(
+                                  children: [
+                                    Image.asset(
+                                      ((categories[index].image != null) ? categories[index].image : IconsResource.ic_other)!,
+                                      color: HexColor(((categories[index].color != null) ? categories[index].color : "#000000")!,),
+                                      height: 30,
+                                      width: 30,
+                                    ),
+                                    SizedBox(width: 12),
+                                    Text(
+                                        categories[index].name!,
+                                        style: new TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+                                        )
+                                    ),
+                                  ],
                                 ),
-                                SizedBox(width: 18),
-                                Text(categories[index].name!, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.bold)),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                        "${parseCurrency(categories[index].totalCapital)}",
+                                        style: new TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black
+                                        )
+                                    ),
+                                    Text(
+                                        "${parseCurrencyProfitPercentPlus(categories[index].totalProfit, categories[index].totalProfitPercent)}",
+                                        style: new TextStyle(
+                                            fontSize: 14.0,
+                                            fontWeight: FontWeight.bold,
+                                            color: categories[index].totalProfit >= 0 ? Colors.green : Colors.red
+                                        )
+                                    ),
+                                  ],
+                                )
                               ],
                             )
                         )
@@ -227,10 +258,17 @@ class _HomeScreenState extends State<HomeScreen> {
                                         Text(categories[index].assets[index2].name!),
                                         Column(
                                           crossAxisAlignment: CrossAxisAlignment.end,
-                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                           children: [
-                                            Text(categories[index].assets[index2].capital.toString()),
-                                            Text(categories[index].assets[index2].profit.toString())
+                                            Text(
+                                              parseCurrency(categories[index].assets[index2].capital),
+                                            ),
+                                            Text(
+                                              parseCurrencyProfitPercentPlus(categories[index].assets[index2].profit, categories[index].assets[index2].profitPercent!),
+                                              style: TextStyle(
+                                                  color: categories[index].assets[index2].profit! > 0 ? Colors.green : Colors.red
+                                              ),
+                                            ),
                                           ],
                                         )
                                       ],

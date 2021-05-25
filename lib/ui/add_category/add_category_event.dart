@@ -3,10 +3,7 @@ import 'package:invest_management/data/model/category.dart';
 
 class AddCategoryEvent{}
 
-class PickColorEvent extends AddCategoryEvent {
-  String color;
-  PickColorEvent(this.color);
-}
+class RefreshColorOrImage extends AddCategoryEvent {}
 class PickImageEvent extends AddCategoryEvent {}
 class SaveCategoryEvent extends AddCategoryEvent{
   Category? category;
