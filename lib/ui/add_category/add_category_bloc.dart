@@ -14,7 +14,12 @@ class AddCategoryBloc extends Bloc<AddCategoryEvent, AddCategoryState>{
     if(event is SaveCategoryEvent) {
       repository!.saveCategory(event.category!);
       yield SaveCategorySuccess();
-    } else if(event is RefreshColorOrImage) {
+    }
+    else if(event is EditCategoryEvent){
+      repository!.updateCategory(event.category!);
+      yield UpdateCategorySuccess();
+    }
+    else if(event is RefreshColorOrImage) {
       yield RefreshColorOrImageState();
     }
   }

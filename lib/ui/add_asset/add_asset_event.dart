@@ -6,3 +6,8 @@ class SaveAssetEvent extends AddAssetEvent {
   Asset asset;
   SaveAssetEvent(this.asset);
 }
+
+class UpdateAssetEvent extends AddAssetEvent {
+  Asset asset;
+  UpdateAssetEvent(this.asset);
+}

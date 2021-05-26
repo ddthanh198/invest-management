@@ -14,6 +14,9 @@ class AddAssetBloc extends Bloc<AddAssetEvent, AddAssetState> {
     if(event is SaveAssetEvent) {
       repository?.saveAsset(event.asset);
       yield SaveAssetSuccess();
+    } else if(event is UpdateAssetEvent) {
+      repository?.updateAsset(event.asset);
+      yield UpdateAssetSuccess();
     }
   }
 }

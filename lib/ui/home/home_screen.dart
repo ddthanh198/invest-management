@@ -1,3 +1,5 @@
+import 'package:custom_pop_up_menu/custom_pop_up_menu.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -5,6 +7,10 @@ import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/data/model/pie_data.dart';
 import 'package:invest_management/data/model/triple.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
+import 'package:invest_management/ui/add_asset/add_asset_bloc.dart';
+import 'package:invest_management/ui/add_asset/add_asset_screen.dart';
+import 'package:invest_management/ui/add_category/add_category_bloc.dart';
+import 'package:invest_management/ui/add_category/add_category_screen.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
 import 'package:invest_management/ui/category/category_screen.dart';
@@ -12,6 +18,9 @@ import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
+import 'package:invest_management/utils/enum/add_asset_screen_type.dart';
+import 'package:invest_management/utils/enum/add_category_screen_type.dart';
+import 'package:invest_management/utils/enum/menu_item_type.dart';
 import 'package:invest_management/utils/extension/number_extension.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
@@ -24,6 +33,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  CustomPopupMenuController categoryController = CustomPopupMenuController();
+  CustomPopupMenuController assetController = CustomPopupMenuController();
 
   @override
   Widget build(BuildContext context) {
@@ -97,6 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context, homeState) {
                 if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
                   return assetList(homeState.listCategory!, homeState.listPieData!, homeState.totalDataTriple!);
+                } else if(homeState is DeleteAssetSuccess || homeState is DeleteCategorySuccess) {
+                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
                 }
                 return noData();
               }
@@ -184,10 +198,54 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderRadius: BorderRadius.circular(15.0),
                 ),
                 child: ExpansionTile(
-                    title: InkWell(
-                      onLongPress: () {
-                        print("onLongPress");
-                      },
+                    title: CustomPopupMenu(
+                      controller: categoryController,
+                      verticalMargin: 0,
+                      showArrow: false,
+                      barrierColor: Colors.transparent,
+                      pressType: PressType.longPress,
+                      menuBuilder: () => _buildMenu((type) {
+                        if(type == MenuType.edit) {
+                          categoryController.hideMenu();
+                          showModalBottomSheet<void>(
+                              isScrollControlled: true,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:BorderRadius.only(
+                                      topLeft: Radius.circular(12),
+                                      topRight: Radius.circular(12)
+                                  )
+                              ),
+                              backgroundColor: Colors.white,
+                              context: context,
+                              builder: (BuildContext buildContext) {
+                                return FractionallySizedBox(
+                                    heightFactor: 0.85,
+                                    child: BlocProvider(
+                                      create: (BuildContext context) => AddCategoryBloc(repository: widget.repository),
+                                      child: AddCategoryScreen(
+                                        repository: widget.repository,
+                                        updateCallback: (){
+                                          BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                                        },
+                                        type: AddCategoryScreenType.edit,
+                                        category: categories[index],
+                                      ),
+                                    )
+                                );
+                              }
+                          );
+                        } else if(type == MenuType.delete) {
+                          categoryController.hideMenu();
+                          _showAlertDialogConfirmDelete(
+                              context,
+                              "Xóa lớp tài sản",
+                              "Bạn có chắc chắn muốn xóa lớp tài sản này không?",
+                              ()  {
+                                BlocProvider.of<HomeBloc>(context).add(DeleteCategoryEvent(categories[index]));
+                              }
+                          );
+                        }
+                      }),
                       child: SizedBox(
                           height: 50,
                           child: Align(
@@ -253,13 +311,55 @@ class _HomeScreenState extends State<HomeScreen> {
                                     child: Divider()
                                 ),
                             itemBuilder: (context, index2) {
-                              return InkWell(
-                                onTap: () {
-                                  print("onTap");
-                                },
-                                onLongPress: () {
-                                  print("onLongPress");
-                                },
+                              return CustomPopupMenu(
+                                controller: assetController,
+                                verticalMargin: 0,
+                                showArrow: false,
+                                barrierColor: Colors.transparent,
+                                pressType: PressType.longPress,
+                                menuBuilder: () => _buildMenu((type) {
+                                  if(type == MenuType.edit) {
+                                    assetController.hideMenu();
+                                    showModalBottomSheet<void>(
+                                        isScrollControlled: true,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:BorderRadius.only(
+                                                topLeft: Radius.circular(12),
+                                                topRight: Radius.circular(12)
+                                            )
+                                        ),
+                                        backgroundColor: Colors.white,
+                                        context: context,
+                                        builder: (BuildContext buildContext) {
+                                          return FractionallySizedBox(
+                                              heightFactor: 0.85,
+                                              child: BlocProvider(
+                                                create: (BuildContext context) => AddAssetBloc(repository: widget.repository),
+                                                child: AddAssetScreen(
+                                                  repository: widget.repository,
+                                                  updateCallback: (){
+                                                    BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                                                  },
+                                                  type: AddAssetScreenType.edit,
+                                                  category: categories[index],
+                                                  asset: categories[index].assets[index2],
+                                                ),
+                                              )
+                                          );
+                                        }
+                                    );
+                                  } else if(type == MenuType.delete) {
+                                    assetController.hideMenu();
+                                    _showAlertDialogConfirmDelete(
+                                        context,
+                                        "Xóa danh mục đầu tư",
+                                        "Bạn có chắc chắn muốn xóa danh mục đầu tư này không?",
+                                        () {
+                                          BlocProvider.of<HomeBloc>(context).add(DeleteAssetEvent(categories[index].assets[index2]));
+                                        }
+                                     );
+                                  }
+                                }),
                                 child: Container(
                                     height: 55,
                                     child: Container(
@@ -362,6 +462,108 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ]
         )
+    );
+  }
+
+  Widget _buildMenu(Function(MenuType) action) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(6.0),
+      ),
+      child: Container(
+        color: HexColor("#FFF"),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            GestureDetector(
+              onTap: () {
+                action.call(MenuType.edit);
+              },
+              behavior: HitTestBehavior.translucent,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Image.asset(
+                      IconsResource.ic_edit,
+                      color: Colors.black,
+                      width: 20,
+                      height: 20,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 6),
+                      child: Text(
+                        "Cập nhật",
+                        style: TextStyle(color: Colors.black, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                action.call(MenuType.delete);
+              },
+              behavior: HitTestBehavior.translucent,
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Image.asset(
+                      IconsResource.ic_delete,
+                      color: Colors.black,
+                      width: 20,
+                      height: 20,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 6),
+                      child: Text(
+                        "Xoá",
+                        style: TextStyle(color: Colors.black, fontSize: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        )
+      ),
+    );
+  }
+
+  _showAlertDialogConfirmDelete(BuildContext context, String title, String content, Function() actionDelete) {
+    Widget cancelButton = TextButton(
+      child: Text("Hủy"),
+      onPressed:  () {
+        Navigator.pop(context);
+      },
+    );
+    Widget continueButton = TextButton(
+      child: Text("Xóa"),
+      onPressed:  () {
+        actionDelete.call();
+        Navigator.pop(context);
+      },
+    );
+
+    AlertDialog alert = AlertDialog(
+      title: Text(title),
+      content: Text(content),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
     );
   }
 }

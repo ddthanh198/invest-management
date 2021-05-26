@@ -15,4 +15,19 @@ abstract class AssetDao {
 
   @insert
   Future<void> insertAsset(Asset asset);
+
+  @update
+  Future<void> updateCategory(Category category);
+
+  @update
+  Future<void> updateAsset(Asset asset);
+
+  @delete
+  Future<void> deleteCategory(Category category);
+
+  @delete
+  Future<void> deleteAsset(Asset asset);
+
+  @Query('DELETE FROM asset WHERE category_id = :categoryId')
+  Future<void> deleteAllAssetWithCategoryId(int categoryId);
 }

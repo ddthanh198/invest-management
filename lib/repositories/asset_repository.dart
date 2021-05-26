@@ -32,6 +32,26 @@ class AssetRepository {
     return assetDao!.insertAsset(asset);
   }
 
+  Future<void> updateAsset(Asset asset) async {
+    return assetDao!.updateAsset(asset);
+  }
+
+  Future<void> updateCategory(Category category) async {
+    return assetDao!.updateCategory(category);
+  }
+
+  Future<void>deleteAsset(Asset asset) async {
+    return assetDao!.deleteAsset(asset);
+  }
+
+  Future<void> deleteCategory(Category category) async {
+    return assetDao!.deleteCategory(category);
+  }
+
+  Future<void> deleteAllAssetWithCategory(int categoryId) async {
+    return assetDao!.deleteAllAssetWithCategoryId(categoryId);
+  }
+
   // List<Category> _fakeData(){
   //   var result = <Category>[];
   //

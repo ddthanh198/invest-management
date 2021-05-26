@@ -9,12 +9,15 @@ import 'package:invest_management/ui/add_category/add_category_event.dart';
 import 'package:invest_management/ui/add_category/add_category_state.dart';
 import 'package:invest_management/ui/choose_image/choose_image_category_screen.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
+import 'package:invest_management/utils/enum/add_category_screen_type.dart';
 
 // ignore: must_be_immutable
 class AddCategoryScreen extends StatefulWidget {
   final AssetRepository? repository;
   VoidCallback? updateCallback;
-  AddCategoryScreen({@required this.repository, this.updateCallback});
+  AddCategoryScreenType type;
+  Category? category;
+  AddCategoryScreen({@required this.repository, this.updateCallback, this.type = AddCategoryScreenType.add, this.category});
 
   @override
   State<StatefulWidget> createState() => _AddCategoryScreenState();
@@ -25,6 +28,16 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
 
   String currentColor = "#000000";
   String currentImage = IconsResource.ic_other;
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.category != null) {
+      currentColor = widget.category!.color!;
+      currentImage = widget.category!.image!;
+      _categoryNameController.text = widget.category!.name!;
+    }
+  }
 
   @override
   void dispose() {
@@ -44,7 +57,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
               height: 36,
             ),
             Text(
-              "Thêm lớp tài sản",
+              (widget.type == AddCategoryScreenType.add) ? "Thêm lớp tài sản" : "Sửa lớp tài sản",
               style: TextStyle(
                   fontSize: 16,
                   color: Colors.black,
@@ -69,7 +82,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
         Divider(height: 1,),
         BlocBuilder<AddCategoryBloc, AddCategoryState>(
             builder: (context, addCategoryState){
-              if(addCategoryState is SaveCategorySuccess) {
+              if(addCategoryState is SaveCategorySuccess || addCategoryState is UpdateCategorySuccess) {
                 widget.updateCallback?.call();
                 Navigator.of(context).pop();
               }
@@ -200,13 +213,21 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        Category category = Category(
-                            null,
-                            _categoryNameController.text,
-                            currentImage,
-                            currentColor
-                        );
-                        BlocProvider.of<AddCategoryBloc>(context).add(SaveCategoryEvent(category: category));
+                        if(widget.type == AddCategoryScreenType.add)  {
+                          Category category = Category(
+                              null,
+                              _categoryNameController.text,
+                              currentImage,
+                              currentColor
+                          );
+                          BlocProvider.of<AddCategoryBloc>(context).add(SaveCategoryEvent(category: category));
+
+                        } else if(widget.type == AddCategoryScreenType.edit){
+                          widget.category!.name = _categoryNameController.text;
+                          widget.category!.image = currentImage;
+                          widget.category!.color = currentColor;
+                          BlocProvider.of<AddCategoryBloc>(context).add(EditCategoryEvent(category: widget.category));
+                        }
                       },
                       child: Text("Lưu"),
                     )

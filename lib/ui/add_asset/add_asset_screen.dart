@@ -7,6 +7,7 @@ import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/add_asset/add_aseet_state.dart';
 import 'package:invest_management/ui/add_asset/add_asset_bloc.dart';
 import 'package:invest_management/ui/add_asset/add_asset_event.dart';
+import 'package:invest_management/utils/enum/add_asset_screen_type.dart';
 
 // ignore: must_be_immutable
 class AddAssetScreen extends StatefulWidget {
@@ -14,7 +15,10 @@ class AddAssetScreen extends StatefulWidget {
   VoidCallback? updateCallback;
   Category category;
 
-  AddAssetScreen({@required this.repository, this.updateCallback,required this.category});
+  AddAssetScreenType type;
+  Asset? asset;
+
+  AddAssetScreen({@required this.repository, this.updateCallback,required this.category, this.type = AddAssetScreenType.add, this.asset});
 
   @override
   State<StatefulWidget> createState() {
@@ -35,6 +39,17 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
   final TextEditingController _profitPercentController = TextEditingController();
 
   @override
+  void initState() {
+    if(widget.asset != null) {
+      _assetNameController.text = widget.asset!.name!;
+      _capitalController.text = widget.asset!.capital.toString();
+      _profitController.text = widget.asset!.profit.toString();
+      _profitPercentController.text = widget.asset!.profitPercent.toString();
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
@@ -46,7 +61,7 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
               height: 36,
             ),
             Text(
-              "Thêm danh mục đầu tư",
+              (widget.type == AddAssetScreenType.add) ? "Thêm danh mục đầu tư" : "Cập nhật danh mục đầu tư",
               style: TextStyle(
                   fontSize: 16,
                   color: Colors.black,
@@ -71,7 +86,7 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
         Divider(height: 1,),
         BlocBuilder<AddAssetBloc, AddAssetState>(
             builder: (context, assetState) {
-              if(assetState is SaveAssetSuccess) {
+              if(assetState is SaveAssetSuccess || assetState is UpdateAssetSuccess) {
                 updateCallback?.call();
                 Navigator.of(context).pop();
               }
@@ -180,17 +195,24 @@ class _AddAssetScreenState extends State<AddAssetScreen> {
                             _profitController.text == "" ||
                             _profitPercentController.text == "") {
 
-
                         } else {
-                          Asset asset = Asset(
-                            null,
-                            category.id,
-                            _assetNameController.text,
-                            int.parse(_capitalController.text),
-                            int.parse(_profitController.text),
-                            int.parse(_profitPercentController.text),
-                          );
-                          BlocProvider.of<AddAssetBloc>(context).add(SaveAssetEvent(asset));
+                          if(widget.type == AddAssetScreenType.add) {
+                            Asset asset = Asset(
+                              null,
+                              category.id,
+                              _assetNameController.text,
+                              int.parse(_capitalController.text),
+                              int.parse(_profitController.text),
+                              int.parse(_profitPercentController.text),
+                            );
+                            BlocProvider.of<AddAssetBloc>(context).add(SaveAssetEvent(asset));
+                          } else if(widget.type == AddAssetScreenType.edit) {
+                            widget.asset?.name = _assetNameController.text;
+                            widget.asset?.capital = int.parse(_capitalController.text);
+                            widget.asset?.profit = int.parse(_profitController.text);
+                            widget.asset?.profitPercent = int.parse(_profitPercentController.text);
+                            BlocProvider.of<AddAssetBloc>(context).add(UpdateAssetEvent(widget.asset!));
+                          }
                         }
                       },
                       child: Text("Lưu"),
