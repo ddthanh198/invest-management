@@ -83,6 +83,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               totalProfitPercent = totalProfit * 100 ~/ totalCapital
             },
 
+            categories.sort((a, b) => a.totalCapital.compareTo(b.totalCapital)),
+            listPieData.sort((a, b) => a.yData.compareTo(b.yData)),
+
             totalDataTriple = Triple<int, int, int> (first: totalCapital, second: totalProfit, third: totalProfitPercent)
           }
         });

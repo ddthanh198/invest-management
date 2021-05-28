@@ -70,6 +70,7 @@ class ChooseImageCategoryScreen extends StatelessWidget {
   List<String> _getListSampleImage() {
     List<String> listImages = List.empty(growable: true);
 
+    listImages.add(IconsResource.ic_cash);
     listImages.add(IconsResource.ic_bank);
     listImages.add(IconsResource.ic_cryptocurrency);
     listImages.add(IconsResource.ic_forex);
