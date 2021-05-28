@@ -13,3 +13,9 @@ class GetDataAssetSuccess extends HomeState {
 }
 
 class GetDataAssetFailure extends HomeState{}
+
+class DeleteCategorySuccess extends HomeState{}
+class DeleteCategoryFailure extends HomeState{}
+
+class DeleteAssetSuccess extends HomeState{}
+class DeleteAssetFailure extends HomeState{}

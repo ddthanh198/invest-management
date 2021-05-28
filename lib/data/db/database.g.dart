@@ -81,7 +81,7 @@ class _$AssetDatabase extends AssetDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `asset` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category_id` INTEGER, `name` TEXT, `capital` INTEGER, `profit` INTEGER, `profitPercent` INTEGER, FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON UPDATE NO ACTION ON DELETE NO ACTION)');
+            'CREATE TABLE IF NOT EXISTS `asset` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category_id` INTEGER, `name` TEXT, `capital` INTEGER, `profit` INTEGER, `profitPercent` INTEGER, FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `category` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `image` TEXT, `color` TEXT)');
 
@@ -119,6 +119,50 @@ class _$AssetDao extends AssetDao {
                   'capital': item.capital,
                   'profit': item.profit,
                   'profitPercent': item.profitPercent
+                }),
+        _categoryUpdateAdapter = UpdateAdapter(
+            database,
+            'category',
+            ['id'],
+            (Category item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'image': item.image,
+                  'color': item.color
+                }),
+        _assetUpdateAdapter = UpdateAdapter(
+            database,
+            'asset',
+            ['id'],
+            (Asset item) => <String, Object?>{
+                  'id': item.id,
+                  'category_id': item.categoryId,
+                  'name': item.name,
+                  'capital': item.capital,
+                  'profit': item.profit,
+                  'profitPercent': item.profitPercent
+                }),
+        _categoryDeletionAdapter = DeletionAdapter(
+            database,
+            'category',
+            ['id'],
+            (Category item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'image': item.image,
+                  'color': item.color
+                }),
+        _assetDeletionAdapter = DeletionAdapter(
+            database,
+            'asset',
+            ['id'],
+            (Asset item) => <String, Object?>{
+                  'id': item.id,
+                  'category_id': item.categoryId,
+                  'name': item.name,
+                  'capital': item.capital,
+                  'profit': item.profit,
+                  'profitPercent': item.profitPercent
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -130,6 +174,14 @@ class _$AssetDao extends AssetDao {
   final InsertionAdapter<Category> _categoryInsertionAdapter;
 
   final InsertionAdapter<Asset> _assetInsertionAdapter;
+
+  final UpdateAdapter<Category> _categoryUpdateAdapter;
+
+  final UpdateAdapter<Asset> _assetUpdateAdapter;
+
+  final DeletionAdapter<Category> _categoryDeletionAdapter;
+
+  final DeletionAdapter<Asset> _assetDeletionAdapter;
 
   @override
   Future<List<Category>> findAllCategories() async {
@@ -155,6 +207,13 @@ class _$AssetDao extends AssetDao {
   }
 
   @override
+  Future<void> deleteAllAssetWithCategoryId(int categoryId) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM asset WHERE category_id = ?1',
+        arguments: [categoryId]);
+  }
+
+  @override
   Future<void> insertCategory(Category category) async {
     await _categoryInsertionAdapter.insert(category, OnConflictStrategy.abort);
   }
@@ -162,5 +221,25 @@ class _$AssetDao extends AssetDao {
   @override
   Future<void> insertAsset(Asset asset) async {
     await _assetInsertionAdapter.insert(asset, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateCategory(Category category) async {
+    await _categoryUpdateAdapter.update(category, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateAsset(Asset asset) async {
+    await _assetUpdateAdapter.update(asset, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteCategory(Category category) async {
+    await _categoryDeletionAdapter.delete(category);
+  }
+
+  @override
+  Future<void> deleteAsset(Asset asset) async {
+    await _assetDeletionAdapter.delete(asset);
   }
 }

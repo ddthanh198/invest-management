@@ -1,0 +1,3 @@
+enum AddCategoryScreenType {
+  add, edit
+}

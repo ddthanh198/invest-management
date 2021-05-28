@@ -91,7 +91,32 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         // print("run here");
 
       } catch(exception) {
+        print(exception);
         yield GetDataAssetFailure();
+      }
+    }
+    else if(event is DeleteCategoryEvent) {
+      try{
+        List<Future<void>> listJobs = List.empty(growable: true);
+
+        listJobs.add(repository.deleteCategory(event.category));
+        // listJobs.add(repository.deleteAllAssetWithCategory(event.category.id!));
+
+        await Future.wait(listJobs).then((value) => {
+
+        });
+
+        yield DeleteCategorySuccess();
+      } catch (error) {
+        print(error);
+        yield DeleteCategoryFailure();
+      }
+    } else if(event is DeleteAssetEvent) {
+      try {
+        repository.deleteAsset(event.asset);
+        yield DeleteAssetSuccess();
+      } catch (error) {
+        yield DeleteAssetFailure();
       }
     }
   }

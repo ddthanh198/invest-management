@@ -1,0 +1,3 @@
+enum AddAssetScreenType {
+  add, edit
+}

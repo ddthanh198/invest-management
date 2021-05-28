@@ -9,3 +9,7 @@ class SaveCategoryEvent extends AddCategoryEvent{
   Category? category;
   SaveCategoryEvent({@required this.category});
 }
+class EditCategoryEvent extends AddCategoryEvent{
+  Category? category;
+  EditCategoryEvent({@required this.category});
+}

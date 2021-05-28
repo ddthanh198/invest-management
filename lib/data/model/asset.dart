@@ -8,6 +8,8 @@ import 'package:invest_management/data/model/category.dart';
       childColumns: ['category_id'],
       parentColumns: ['id'],
       entity: Category,
+      onDelete: ForeignKeyAction.cascade,
+      onUpdate: ForeignKeyAction.cascade,
     )
   ],
 )
