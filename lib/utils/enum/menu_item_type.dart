@@ -1,0 +1,3 @@
+enum MenuType {
+  delete, edit
+}
