@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
     return BlocProvider(
       create: (BuildContext context) => HomeBloc(repository: repository)..add(GetDataAssetEvent()),
       child: MaterialApp(
-          title: 'Flutter Demo',
+          title: 'Quản lý đầu tư',
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
