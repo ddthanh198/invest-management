@@ -131,7 +131,8 @@ class _HomeScreenState extends State<HomeScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(10),
+                  width: (MediaQuery.of(context).size.width - 16) * 0.5,
+                  padding: const EdgeInsets.only(left: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -171,7 +172,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 SizedBox(
                   height: 180,
-                  width: 180,
+                  width: (MediaQuery.of(context).size.width - 20) * 0.5,
                   child: SfCircularChart(
                       series: <DoughnutSeries<PieData, String>>[
                         DoughnutSeries<PieData, String>(
@@ -197,201 +198,211 @@ class _HomeScreenState extends State<HomeScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
-                child: ExpansionTile(
-                    title: CustomPopupMenu(
-                      controller: categoryController,
-                      verticalMargin: 0,
-                      showArrow: false,
-                      barrierColor: Colors.transparent,
-                      pressType: PressType.longPress,
-                      menuBuilder: () => _buildMenu((type) {
-                        if(type == MenuType.edit) {
-                          categoryController.hideMenu();
-                          showModalBottomSheet<void>(
-                              isScrollControlled: true,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:BorderRadius.only(
-                                      topLeft: Radius.circular(12),
-                                      topRight: Radius.circular(12)
-                                  )
-                              ),
-                              backgroundColor: Colors.white,
-                              context: context,
-                              builder: (BuildContext buildContext) {
-                                return FractionallySizedBox(
-                                    heightFactor: 0.85,
-                                    child: BlocProvider(
-                                      create: (BuildContext context) => AddCategoryBloc(repository: widget.repository),
-                                      child: AddCategoryScreen(
-                                        repository: widget.repository,
-                                        updateCallback: (){
-                                          BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
-                                        },
-                                        type: AddCategoryScreenType.edit,
-                                        category: categories[index],
-                                      ),
+                child: ListTileTheme(
+                  contentPadding: EdgeInsets.only(left: 8, right: 8),
+                  dense: true,
+                  child: ExpansionTile(
+                      title: CustomPopupMenu(
+                        controller: categoryController,
+                        verticalMargin: 0,
+                        showArrow: false,
+                        barrierColor: Colors.transparent,
+                        pressType: PressType.longPress,
+                        menuBuilder: () => _buildMenu((type) {
+                          if(type == MenuType.edit) {
+                            categoryController.hideMenu();
+                            showModalBottomSheet<void>(
+                                isScrollControlled: true,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:BorderRadius.only(
+                                        topLeft: Radius.circular(12),
+                                        topRight: Radius.circular(12)
                                     )
-                                );
-                              }
-                          );
-                        } else if(type == MenuType.delete) {
-                          categoryController.hideMenu();
-                          _showAlertDialogConfirmDelete(
-                              context,
-                              "Xóa lớp tài sản",
-                              "Bạn có chắc chắn muốn xóa lớp tài sản này không?",
-                              ()  {
-                                BlocProvider.of<HomeBloc>(context).add(DeleteCategoryEvent(categories[index]));
-                              }
-                          );
-                        }
-                      }),
-                      child: SizedBox(
-                          height: 50,
-                          child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Image.asset(
-                                        ((categories[index].image != null) ? categories[index].image : IconsResource.ic_other)!,
-                                        color: HexColor(((categories[index].color != null) ? categories[index].color : "#000000")!,),
-                                        height: 30,
-                                        width: 30,
-                                      ),
-                                      SizedBox(width: 12),
-                                      Text(
-                                          categories[index].name!,
-                                          style: new TextStyle(
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black
-                                          )
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                          "${parseCurrency(categories[index].totalCapital)}",
-                                          style: new TextStyle(
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black
-                                          )
-                                      ),
-                                      Text(
-                                          "${parseCurrencyProfitPercentPlus(categories[index].totalProfit, categories[index].totalProfitPercent)}",
-                                          style: new TextStyle(
-                                              fontSize: 14.0,
-                                              fontWeight: FontWeight.bold,
-                                              color: categories[index].totalProfit >= 0 ? Colors.green : Colors.red
-                                          )
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              )
-                          )
-                      ),
-                    ),
-                    children: [
-                      SizedBox (
-                        height: (57 * (categories[index].assets.length)).toDouble() ,
-                        child: ListView.separated(
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: categories[index].assets.length,
-                            separatorBuilder: (BuildContext context, int index) =>
-                                SizedBox(
-                                    height: 2,
-                                    child: Divider()
                                 ),
-                            itemBuilder: (context, index2) {
-                              return CustomPopupMenu(
-                                controller: assetController,
-                                verticalMargin: 0,
-                                showArrow: false,
-                                barrierColor: Colors.transparent,
-                                pressType: PressType.longPress,
-                                menuBuilder: () => _buildMenu((type) {
-                                  if(type == MenuType.edit) {
-                                    assetController.hideMenu();
-                                    showModalBottomSheet<void>(
-                                        isScrollControlled: true,
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:BorderRadius.only(
-                                                topLeft: Radius.circular(12),
-                                                topRight: Radius.circular(12)
+                                backgroundColor: Colors.white,
+                                context: context,
+                                builder: (BuildContext buildContext) {
+                                  return FractionallySizedBox(
+                                      heightFactor: 0.85,
+                                      child: BlocProvider(
+                                        create: (BuildContext context) => AddCategoryBloc(repository: widget.repository),
+                                        child: AddCategoryScreen(
+                                          repository: widget.repository,
+                                          updateCallback: (){
+                                            BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                                          },
+                                          type: AddCategoryScreenType.edit,
+                                          category: categories[index],
+                                        ),
+                                      )
+                                  );
+                                }
+                            );
+                          } else if(type == MenuType.delete) {
+                            categoryController.hideMenu();
+                            _showAlertDialogConfirmDelete(
+                                context,
+                                "Xóa lớp tài sản",
+                                "Bạn có chắc chắn muốn xóa lớp tài sản này không?",
+                                ()  {
+                                  BlocProvider.of<HomeBloc>(context).add(DeleteCategoryEvent(categories[index]));
+                                }
+                            );
+                          }
+                        }),
+                        child: SizedBox(
+                            height: 50,
+                            child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Image.asset(
+                                          ((categories[index].image != null) ? categories[index].image : IconsResource.ic_other)!,
+                                          color: HexColor(((categories[index].color != null) ? categories[index].color : "#000000")!,),
+                                          height: 30,
+                                          width: 30,
+                                        ),
+                                        SizedBox(width: 12),
+                                        Text(
+                                            categories[index].name!,
+                                            style: new TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black
                                             )
                                         ),
-                                        backgroundColor: Colors.white,
-                                        context: context,
-                                        builder: (BuildContext buildContext) {
-                                          return FractionallySizedBox(
-                                              heightFactor: 0.85,
-                                              child: BlocProvider(
-                                                create: (BuildContext context) => AddAssetBloc(repository: widget.repository),
-                                                child: AddAssetScreen(
-                                                  repository: widget.repository,
-                                                  updateCallback: (){
-                                                    BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
-                                                  },
-                                                  type: AddAssetScreenType.edit,
-                                                  category: categories[index],
-                                                  asset: categories[index].assets[index2],
-                                                ),
-                                              )
-                                          );
-                                        }
-                                    );
-                                  } else if(type == MenuType.delete) {
-                                    assetController.hideMenu();
-                                    _showAlertDialogConfirmDelete(
-                                        context,
-                                        "Xóa danh mục đầu tư",
-                                        "Bạn có chắc chắn muốn xóa danh mục đầu tư này không?",
-                                        () {
-                                          BlocProvider.of<HomeBloc>(context).add(DeleteAssetEvent(categories[index].assets[index2]));
-                                        }
-                                     );
-                                  }
-                                }),
-                                child: Container(
-                                    height: 55,
-                                    child: Container(
-                                      padding: EdgeInsets.fromLTRB(18, 0, 18, 0),
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(categories[index].assets[index2].name!),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.end,
-                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                            children: [
-                                              Text(
-                                                parseCurrency(categories[index].assets[index2].capital),
-                                              ),
-                                              Text(
-                                                parseCurrencyProfitPercentPlus(categories[index].assets[index2].profit, categories[index].assets[index2].profitPercent!),
-                                                style: TextStyle(
-                                                    color: categories[index].assets[index2].profit! > 0 ? Colors.green : Colors.red
-                                                ),
-                                              ),
-                                            ],
-                                          )
-                                        ],
-                                      ),
+                                      ],
+                                    ),
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                            "${parseCurrency(categories[index].totalCapital)}",
+                                            style: new TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black
+                                            )
+                                        ),
+                                        Text(
+                                            "${parseCurrencyProfitPercentPlus(categories[index].totalProfit, categories[index].totalProfitPercent)}",
+                                            style: new TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: categories[index].totalProfit >= 0 ? Colors.green : Colors.red
+                                            )
+                                        ),
+                                      ],
                                     )
-                                ),
-                              );
-                            }
+                                  ],
+                                )
+                            )
                         ),
                       ),
-                    ]
+                      children: [
+                        SizedBox (
+                          height: (57 * (categories[index].assets.length)).toDouble() ,
+                          child: ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: categories[index].assets.length,
+                              separatorBuilder: (BuildContext context, int index) =>
+                                  SizedBox(
+                                      height: 2,
+                                      child: Divider()
+                                  ),
+                              itemBuilder: (context, index2) {
+                                return CustomPopupMenu(
+                                  controller: assetController,
+                                  verticalMargin: 0,
+                                  showArrow: false,
+                                  barrierColor: Colors.transparent,
+                                  pressType: PressType.longPress,
+                                  menuBuilder: () => _buildMenu((type) {
+                                    if(type == MenuType.edit) {
+                                      assetController.hideMenu();
+                                      showModalBottomSheet<void>(
+                                          isScrollControlled: true,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:BorderRadius.only(
+                                                  topLeft: Radius.circular(12),
+                                                  topRight: Radius.circular(12)
+                                              )
+                                          ),
+                                          backgroundColor: Colors.white,
+                                          context: context,
+                                          builder: (BuildContext buildContext) {
+                                            return FractionallySizedBox(
+                                                heightFactor: 0.85,
+                                                child: BlocProvider(
+                                                  create: (BuildContext context) => AddAssetBloc(repository: widget.repository),
+                                                  child: AddAssetScreen(
+                                                    repository: widget.repository,
+                                                    updateCallback: (){
+                                                      BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                                                    },
+                                                    type: AddAssetScreenType.edit,
+                                                    category: categories[index],
+                                                    asset: categories[index].assets[index2],
+                                                  ),
+                                                )
+                                            );
+                                          }
+                                      );
+                                    } else if(type == MenuType.delete) {
+                                      assetController.hideMenu();
+                                      _showAlertDialogConfirmDelete(
+                                          context,
+                                          "Xóa danh mục đầu tư",
+                                          "Bạn có chắc chắn muốn xóa danh mục đầu tư này không?",
+                                          () {
+                                            BlocProvider.of<HomeBloc>(context).add(DeleteAssetEvent(categories[index].assets[index2]));
+                                          }
+                                       );
+                                    }
+                                  }),
+                                  child: Container(
+                                      height: 55,
+                                      child: Container(
+                                        padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              categories[index].assets[index2].name!,
+                                              style: TextStyle(
+                                                fontSize: 14
+                                              ),
+                                            ),
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.end,
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Text(
+                                                  parseCurrency(categories[index].assets[index2].capital),
+                                                ),
+                                                Text(
+                                                  parseCurrencyProfitPercentPlus(categories[index].assets[index2].profit, categories[index].assets[index2].profitPercent!),
+                                                  style: TextStyle(
+                                                      fontSize: 14,
+                                                      color: categories[index].assets[index2].profit! > 0 ? Colors.green : Colors.red
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                  ),
+                                );
+                              }
+                          ),
+                        ),
+                      ]
+                  ),
                 ),
               );
             },
