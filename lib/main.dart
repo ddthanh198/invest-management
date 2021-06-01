@@ -1,3 +1,4 @@
+import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:invest_management/blocs/asset_bloc_observer.dart';
@@ -5,8 +6,6 @@ import 'package:invest_management/data/db/asset_dao.dart';
 import 'package:invest_management/data/db/database.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:bloc/bloc.dart';
-import 'package:invest_management/ui/add_category/add_category_bloc.dart';
-import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_screen.dart';
 import 'ui/home/home_event.dart';
@@ -15,7 +14,12 @@ import 'ui/home/home_event.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Bloc.observer = AssetBlocObserver();
-  AssetDatabase? assetDb = await $FloorAssetDatabase.databaseBuilder('asset_database.db').build();
+
+  final migration1to2 = Migration(1, 2, (database) async {
+    await database.execute('ALTER TABLE asset MODIFY COLUMN profitPercent REAL');
+  });
+
+  AssetDatabase? assetDb = await $FloorAssetDatabase.databaseBuilder('asset_database.db').addMigrations([migration1to2]).build();
   AssetDao assetDao = assetDb.assetDao;
   AssetRepository _repository = AssetRepository(assetDao: assetDao);
   runApp(MyApp(assetDatabase: assetDb, repository: _repository));

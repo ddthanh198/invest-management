@@ -65,7 +65,7 @@ class _$AssetDatabase extends AssetDatabase {
   Future<sqflite.Database> open(String path, List<Migration> migrations,
       [Callback? callback]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -81,7 +81,7 @@ class _$AssetDatabase extends AssetDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `asset` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category_id` INTEGER, `name` TEXT, `capital` INTEGER, `profit` INTEGER, `profitPercent` INTEGER, FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `asset` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category_id` INTEGER, `name` TEXT, `capital` INTEGER, `profit` INTEGER, `profitPercent` REAL, FOREIGN KEY (`category_id`) REFERENCES `category` (`id`) ON UPDATE CASCADE ON DELETE CASCADE)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `category` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `image` TEXT, `color` TEXT)');
 
@@ -202,7 +202,7 @@ class _$AssetDao extends AssetDao {
             row['name'] as String?,
             row['capital'] as int?,
             row['profit'] as int?,
-            row['profitPercent'] as int?),
+            row['profitPercent'] as double?),
         arguments: [categoryId]);
   }
 
