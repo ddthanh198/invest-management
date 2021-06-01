@@ -8,7 +8,7 @@ abstract class HomeState {}
 class GetDataAssetSuccess extends HomeState {
   List<Category>? listCategory;
   List<PieData>? listPieData;
-  Triple<int, int, int>? totalDataTriple;
+  Triple<int, int, double>? totalDataTriple;
   GetDataAssetSuccess({required this.listCategory, required this.listPieData, required this.totalDataTriple});
 }
 

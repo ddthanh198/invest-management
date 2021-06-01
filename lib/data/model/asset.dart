@@ -22,7 +22,7 @@ class Asset {
   @ColumnInfo(name: 'name') String? name;
   @ColumnInfo(name: 'capital') int? capital = 0;
   @ColumnInfo(name: 'profit') int? profit = 0;
-  @ColumnInfo(name: 'profitPercent') int? profitPercent = 0;
+  @ColumnInfo(name: 'profitPercent') double? profitPercent = 0;
 
   Asset(this.id, this.categoryId, this.name, this.capital, this.profit, this.profitPercent);
 }

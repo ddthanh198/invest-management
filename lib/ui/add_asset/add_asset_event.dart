@@ -11,3 +11,12 @@ class UpdateAssetEvent extends AddAssetEvent {
   Asset asset;
   UpdateAssetEvent(this.asset);
 }
+
+class ValidateDataAssetEvent extends AddAssetEvent{
+  String name;
+  String capital;
+  String profit;
+  String profitPercent;
+
+  ValidateDataAssetEvent(this.name, this.capital, this.profit, this.profitPercent);
+}

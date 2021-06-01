@@ -26,7 +26,7 @@ class AddCategoryScreen extends StatefulWidget {
 class _AddCategoryScreenState extends State<AddCategoryScreen> {
   final TextEditingController _categoryNameController = TextEditingController();
 
-  String currentColor = "#000000";
+  String currentColor = "#50A7F4";
   String currentImage = IconsResource.ic_other;
 
   @override
@@ -148,7 +148,7 @@ class _AddCategoryScreenState extends State<AddCategoryScreen> {
                                   contentPadding: const EdgeInsets.all(0.0),
                                   content: SingleChildScrollView(
                                     child: ColorPicker(
-                                      pickerColor: Colors.red,
+                                      pickerColor: HexColor(currentColor),
                                       onColorChanged: (Color color) {
                                         currentColor = color.value.toRadixString(16);
                                       },

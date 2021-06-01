@@ -17,6 +17,17 @@ class AddAssetBloc extends Bloc<AddAssetEvent, AddAssetState> {
     } else if(event is UpdateAssetEvent) {
       repository?.updateAsset(event.asset);
       yield UpdateAssetSuccess();
+    } else if(event is ValidateDataAssetEvent) {
+      if(
+        event.name == "" ||
+        event.capital == "" ||
+        event.profit == "" ||
+        event.profitPercent == ""
+      ) {
+        yield ValidateDataAssetFailure();
+      } else {
+        yield ValidateDataAssetSuccess();
+      }
     }
   }
 }
