@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget assetList(List<Category> categories, List<PieData> listPieData, Triple<int, int, int> totalData) {
+  Widget assetList(List<Category> categories, List<PieData> listPieData, Triple<int, int, double> totalData) {
     return Column(
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
@@ -261,7 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       children: [
                                         Image.asset(
                                           ((categories[index].image != null) ? categories[index].image : IconsResource.ic_other)!,
-                                          color: HexColor(((categories[index].color != null) ? categories[index].color : "#000000")!,),
+                                          color: HexColor(categories[index].color ?? "#000000"),
                                           height: 30,
                                           width: 30,
                                         ),
@@ -457,7 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: SfCircularChart(
                       series: <DoughnutSeries<PieData, String>>[
                         DoughnutSeries<PieData, String>(
-                            innerRadius: "50%",
+                            innerRadius: "45%",
                             dataSource: [
                               PieData("capital", 1, HexColor("#1C87E6") ,"0%"),
                             ],

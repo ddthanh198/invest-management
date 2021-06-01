@@ -15,5 +15,5 @@ class Category {
   @ignore List<Asset> assets = List.empty(growable: true);
   @ignore int totalCapital = 0;
   @ignore int totalProfit = 0;
-  @ignore int totalProfitPercent = 0;
+  @ignore double totalProfitPercent = 0;
 }

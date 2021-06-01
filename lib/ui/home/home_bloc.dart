@@ -8,6 +8,7 @@ import 'package:invest_management/data/model/triple.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
+import 'package:invest_management/utils/extension/number_extension.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final AssetRepository repository;
@@ -33,15 +34,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
         int totalCapital = 0;
         int totalProfit = 0;
-        int totalProfitPercent = 0;
+        double totalProfitPercent = 0;
 
         int totalCapitalOfCategory = 0;
         int totalProfitOfCategory = 0;
-        int totalProfitPercentOfCategory = 0;
+        double totalProfitPercentOfCategory = 0;
 
-        int capitalPercent;
+        double capitalPercent;
         PieData pieData;
-        Triple<int, int, int>? totalDataTriple;
+        Triple<int, int, double>? totalDataTriple;
 
         await Future.wait(listJobs).then((value) =>  {
           if(categories != null) {
@@ -58,7 +59,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               }),
 
               if(totalCapitalOfCategory != 0) {
-                totalProfitPercentOfCategory = totalProfitOfCategory * 100 ~/ totalCapitalOfCategory
+                totalProfitPercentOfCategory = toPrecision(totalProfitOfCategory * 100 / totalCapitalOfCategory)
               },
 
               categories[i].totalCapital = totalCapitalOfCategory,
@@ -70,7 +71,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
             for(var i = 0; i < categories.length; i++) {
               if(totalCapital != 0) {
-                capitalPercent = categories[i].totalCapital * 100 ~/ totalCapital,
+                capitalPercent = toPrecision(categories[i].totalCapital * 100 / totalCapital),
                 totalProfit += categories[i].totalProfit,
                 pieData =  PieData("capital", categories[i].totalCapital, HexColor(categories[i].color!) ,"$capitalPercent%"),
                 if(categories[i].totalCapital != 0) {
@@ -80,13 +81,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             },
 
             if(totalCapital != 0) {
-              totalProfitPercent = totalProfit * 100 ~/ totalCapital
+              totalProfitPercent = toPrecision(totalProfit * 100 / totalCapital)
             },
 
             categories.sort((a, b) => a.totalCapital.compareTo(b.totalCapital)),
             listPieData.sort((a, b) => a.yData.compareTo(b.yData)),
 
-            totalDataTriple = Triple<int, int, int> (first: totalCapital, second: totalProfit, third: totalProfitPercent)
+            totalDataTriple = Triple<int, int, double> (first: totalCapital, second: totalProfit, third: totalProfitPercent)
           }
         });
 
