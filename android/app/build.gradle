@@ -72,6 +72,12 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'),
                     'proguard-rules.pro'
+
+            applicationVariants.all { variant ->
+                variant.outputs.all {
+                    outputFileName = "investment_management_${variant.buildType.name}_${defaultConfig.versionName}.apk"
+                }
+            }
         }
     }
 
