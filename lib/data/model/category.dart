@@ -1,6 +1,10 @@
 import 'package:floor/floor.dart';
 import 'package:invest_management/data/model/asset.dart';
+import 'package:json_annotation/json_annotation.dart';
 
+part 'category.g.dart';
+
+@JsonSerializable()
 @Entity(tableName: "category")
 class Category {
   Category(this.id, this.name, this.image, this.color);
@@ -16,4 +20,7 @@ class Category {
   @ignore int totalCapital = 0;
   @ignore int totalProfit = 0;
   @ignore double totalProfitPercent = 0;
+
+  factory Category.fromJson(Map<String, dynamic> json) => _$CategoryFromJson(json);
+  Map<String, dynamic> toJson() => _$CategoryToJson(this);
 }
