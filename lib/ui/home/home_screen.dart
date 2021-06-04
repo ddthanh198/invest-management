@@ -14,6 +14,7 @@ import 'package:invest_management/ui/add_category/add_category_screen.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
 import 'package:invest_management/ui/category/category_screen.dart';
+import 'package:invest_management/ui/home/chose_exporte_file_screen.dart';
 import 'package:invest_management/ui/home/drawer.dart';
 import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_event.dart';
@@ -35,11 +36,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
-  List<Category>? listCategory;
-  List<PieData>? listPieData;
-  Triple<int, int, double>? totalDataTriple;
-
   CustomPopupMenuController categoryController = CustomPopupMenuController();
   CustomPopupMenuController assetController = CustomPopupMenuController();
 
@@ -51,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BlocProvider.of<HomeBloc>(context).add(ExportAssetEvent());
         },
         actionClickImport: () {
-
+          BlocProvider.of<HomeBloc>(context).add(GetExportedFileEvent());
         },
       ),
       appBar: AppBar(
@@ -120,41 +116,82 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
           padding: const EdgeInsets.all(5),
           color: HexColor("#F2F5FA"),
-          child: BlocBuilder <HomeBloc, HomeState>(
+          child: BlocConsumer <HomeBloc, HomeState>(
+              listener: (context, homeState) {
+                if(homeState is DeleteAssetSuccess || homeState is DeleteCategorySuccess) {
+                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                }
+                else if(homeState is ExportAssetSuccess) {
+                  Navigator.of(context).pop();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Export thành công!", textAlign: TextAlign.center),
+                        actions: [
+                          TextButton(
+                            child: Text("OK"),
+                            onPressed:  () {
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      );
+                    },
+                  );
+                }
+                else if(homeState is ExportAssetFailure) {
+                  Navigator.of(context).pop();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text(homeState.title ?? "", textAlign: TextAlign.center),
+                        content: Text(homeState.content ?? "", textAlign: TextAlign.center),
+                        actions: [
+                          TextButton(
+                            child: Text("OK"),
+                            onPressed:  () {
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      );
+                    },
+                  );
+                }
+                else if(homeState is GetExportedFileSuccess) {
+                  homeState.listPath.forEach((element) {
+                    print("_HomeScreenState : build : $element");
+                  });
+                  Navigator.pop(context);
+                  showModalBottomSheet<void>(
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                          borderRadius:BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12)
+                          )
+                      ),
+                      backgroundColor: Colors.white,
+                      context: context,
+                      builder: (BuildContext buildContext) {
+                        return FractionallySizedBox(
+                            heightFactor: 0.5,
+                            child: ChooseExportedFileScreen(
+                              importCallback: (filePath) {
+                                print("_HomeScreenState : build : $filePath");
+                              },
+                              listPath: homeState.listPath,
+                            )
+                        );
+                      }
+                  );
+                }
+              },
               builder: (context, homeState) {
                 if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
-                  this.listCategory = homeState.listCategory!;
-                  this.listPieData = homeState.listPieData!;
-                  this.totalDataTriple = homeState.totalDataTriple!;
-                } else if(homeState is DeleteAssetSuccess || homeState is DeleteCategorySuccess) {
-                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
-                } else if(homeState is ExportAssetSuccess) {
-                  Future.delayed(const Duration(milliseconds: 500), () {
-                    Navigator.of(context).pop();
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: Text("Export thành công!", textAlign: TextAlign.center),
-                          actions: [
-                            TextButton(
-                              child: Text("OK"),
-                              onPressed:  () {
-                                Navigator.pop(context);
-                              },
-                            )
-                          ],
-                        );
-                      },
-                    );
-                  });
-
-                } else if(homeState is ExportAssetFailure) {
-                  print("_HomeScreenState : build : ExportAssetFailure");
-                }
-
-                if(this.listCategory != null && this.listCategory!.length > 0) {
-                  return assetList(listCategory!, listPieData!, totalDataTriple!);
+                  return assetList(homeState.listCategory!, homeState.listPieData!, homeState.totalDataTriple!);
                 } else {
                   return noData();
                 }

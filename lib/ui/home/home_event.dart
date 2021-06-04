@@ -17,4 +17,5 @@ class DeleteAssetEvent extends HomeEvent {
 }
 
 class ExportAssetEvent extends HomeEvent {}
+class GetExportedFileEvent extends HomeEvent {}
 class ImportAssetEvent extends HomeEvent {}

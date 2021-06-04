@@ -24,6 +24,7 @@ class DrawerMenuWidget extends StatelessWidget {
                 print("DrawerMenuWidget : build : onTap export");
                 actionClickExport?.call();
               },
+              behavior: HitTestBehavior.translucent,
               child: ListTile(
                 leading: Image.asset(
                   IconsResource.ic_export,
