@@ -42,6 +42,7 @@ android {
         applicationId "com.jack.investment_management"
         minSdkVersion 23
         targetSdkVersion 30
+        multiDexEnabled true
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

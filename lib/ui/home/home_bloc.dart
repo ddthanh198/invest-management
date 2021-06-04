@@ -1,14 +1,21 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:invest_management/data/model/asset.dart';
 import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/data/model/pie_data.dart';
 import 'package:invest_management/data/model/triple.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
+import 'package:invest_management/ui/add_asset/add_aseet_state.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/extension/number_extension.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final AssetRepository repository;
@@ -26,9 +33,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         List<Future<List<Asset>>> listJobs = List.empty(growable: true);
 
         categories?.forEach((element) async {
-          // List<Asset>? assets = await repository?.getAssetsWithCategoryId(element.id!);
-          // if(assets != null) element.assets = assets;
-
           listJobs.add(repository.getAssetsWithCategoryId(element.id!));
         });
 
@@ -115,7 +119,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         print(error);
         yield DeleteCategoryFailure();
       }
-    } else if(event is DeleteAssetEvent) {
+    }
+    else if(event is DeleteAssetEvent) {
       try {
         repository.deleteAsset(event.asset);
         yield DeleteAssetSuccess();
@@ -123,5 +128,53 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         yield DeleteAssetFailure();
       }
     }
+    else if(event is ExportAssetEvent) {
+      try {
+        final List<Category>? categories = await repository.getDataAsset();
+        List<Future<List<Asset>>> listJobs = List.empty(growable: true);
+
+        categories?.forEach((element) async {
+          listJobs.add(repository.getAssetsWithCategoryId(element.id!));
+        });
+
+        await Future.wait(listJobs).then((value) => {
+          if(categories != null) {
+            for(var i = 0; i < categories.length; i++) {
+              categories[i].assets = value[i],
+            }
+          }
+        });
+
+        print("HomeBloc : mapEventToState : $categories");
+
+        var statusExternalPermission = await Permission.storage.status;
+        if(statusExternalPermission.isGranted) {
+          print("HomeBloc : mapEventToState : statusExternalPermission isGranted");
+        } else if(statusExternalPermission.isDenied) {
+          requestPermission(Permission.storage);
+        }
+
+        var externalPath = await getExternalStorageDirectory();
+        var now = new DateTime.now();
+        var formatter = new DateFormat('yyyyMMdd_hhmmss');
+        String formattedDate = formatter.format(now);
+
+        File outputFile = File("${externalPath?.path}/backup_asset_$formattedDate.txt");
+
+        String categoryString = jsonEncode(categories);
+
+        outputFile.writeAsString(categoryString);
+
+        yield ExportAssetSuccess();
+      } catch (exception) {
+        print("HomeBloc : mapEventToState : $exception");
+        yield ExportAssetFailure();
+      }
+    }
+  }
+
+  Future<void> requestPermission(Permission permission) async {
+    final status = await permission.request();
+    print("HomeBloc : requestPermission : $status");
   }
 }

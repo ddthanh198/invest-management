@@ -11,4 +11,6 @@ class IconsResource {
   static String ic_delete = 'assets/icons/ic_delete.png';
   static String ic_edit = 'assets/icons/ic_edit.png';
   static String ic_cash = 'assets/icons/ic_cash.png';
+  static String ic_import = 'assets/icons/ic_import.png';
+  static String ic_export = 'assets/icons/ic_export.png';
 }

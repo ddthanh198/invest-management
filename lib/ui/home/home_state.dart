@@ -19,3 +19,9 @@ class DeleteCategoryFailure extends HomeState{}
 
 class DeleteAssetSuccess extends HomeState{}
 class DeleteAssetFailure extends HomeState{}
+
+class ExportAssetSuccess extends HomeState{}
+class ExportAssetFailure extends HomeState{}
+
+class ImportAssetSuccess extends HomeState{}
+class ImportAssetFailure extends HomeState{}
