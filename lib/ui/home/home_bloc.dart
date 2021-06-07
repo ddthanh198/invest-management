@@ -1,14 +1,22 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:intl/intl.dart';
 import 'package:invest_management/data/model/asset.dart';
 import 'package:invest_management/data/model/category.dart';
+import 'package:invest_management/data/model/pair.dart';
 import 'package:invest_management/data/model/pie_data.dart';
 import 'package:invest_management/data/model/triple.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
+import 'package:invest_management/ui/add_asset/add_aseet_state.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/utils/extension/number_extension.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   final AssetRepository repository;
@@ -26,9 +34,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         List<Future<List<Asset>>> listJobs = List.empty(growable: true);
 
         categories?.forEach((element) async {
-          // List<Asset>? assets = await repository?.getAssetsWithCategoryId(element.id!);
-          // if(assets != null) element.assets = assets;
-
           listJobs.add(repository.getAssetsWithCategoryId(element.id!));
         });
 
@@ -100,28 +105,158 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
     }
     else if(event is DeleteCategoryEvent) {
-      try{
-        List<Future<void>> listJobs = List.empty(growable: true);
+      yield await handleDeleteCategoryEvent(event);
+    }
+    else if(event is DeleteAssetEvent) {
+      yield await handleDeleteAssetEvent(event);
+    }
+    else if(event is ExportAssetEvent) {
+      yield await handleExportEvent(event);
+    }
+    else if (event is GetExportedFileEvent) {
+      yield await handleGetExportedFileEvent(event);
+    }
+    else if(event is ImportAssetEvent) {
+      yield await handleImportEvent(event);
+    }
+  }
 
-        listJobs.add(repository.deleteCategory(event.category));
-        // listJobs.add(repository.deleteAllAssetWithCategory(event.category.id!));
+  Future<HomeState> handleDeleteCategoryEvent(DeleteCategoryEvent event) async {
+    try{
+      await repository.deleteCategory(event.category);
 
-        await Future.wait(listJobs).then((value) => {
+      // List<Future<void>> listJobs = List.empty(growable: true);
+      //
+      // listJobs.add(repository.deleteCategory(event.category));
+      //
+      // await Future.wait(listJobs).then((value) => {
+      //
+      // });
 
+      return DeleteCategorySuccess();
+    } catch (error) {
+      print(error);
+      return DeleteCategoryFailure();
+    }
+  }
+
+  Future<HomeState> handleDeleteAssetEvent(DeleteAssetEvent event) async {
+    try {
+      repository.deleteAsset(event.asset);
+      return DeleteAssetSuccess();
+    } catch (error) {
+      return DeleteAssetFailure();
+    }
+  }
+
+  Future<HomeState> handleExportEvent(ExportAssetEvent event) async {
+    try {
+      final List<Category>? categories = await repository.getDataAsset();
+      List<Future<List<Asset>>> listJobs = List.empty(growable: true);
+
+      categories?.forEach((element) async {
+        listJobs.add(repository.getAssetsWithCategoryId(element.id!));
+      });
+
+      await Future.wait(listJobs).then((value) => {
+        if(categories != null) {
+          for(var i = 0; i < categories.length; i++) {
+            categories[i].assets = value[i],
+          }
+        }
+      });
+
+      var statusExternalPermission = await Permission.storage.status;
+      if(statusExternalPermission.isGranted) {
+        var externalDirectory = await getExternalStorageDirectory();
+        var now = new DateTime.now();
+        var formatter = new DateFormat('yyyyMMdd_hhmmss');
+        String formattedDate = formatter.format(now);
+
+        File outputFile = File("${externalDirectory?.path}/backup_asset_$formattedDate.txt");
+
+        String categoryString = jsonEncode(categories);
+
+        outputFile.writeAsString(categoryString);
+
+        return ExportAssetSuccess();
+      } else if(statusExternalPermission.isDenied) {
+        final status = await Permission.storage.request();
+        if(status == PermissionStatus.permanentlyDenied) {
+          return ExportAssetFailure(
+              title: "Export thất bại!",
+              content: "Vui lòng vào cài đặt để cấp quyền truy cập bộ nhớ cho ứng dụng!"
+          );
+        }
+      }
+
+      return ExportAssetFailure(title: "Export thất bại!");
+    } catch (exception) {
+      print("HomeBloc : handleExportEvent : $exception");
+      return ExportAssetFailure(title: "Export thất bại!");
+    }
+  }
+
+  Future<HomeState> handleImportEvent(ImportAssetEvent event) async {
+    try{
+        await repository.deleteAllAsset();
+
+        File inputFile = File(event.filePath);
+
+        final contents = await inputFile.readAsString();
+
+        List<dynamic> rawList = jsonDecode(contents);
+
+        List<Category> categories = List.empty(growable: true);
+        rawList.forEach((element) {
+          Category category = Category.fromJson(element);
+          categories.add(category);
         });
 
-        yield DeleteCategorySuccess();
-      } catch (error) {
-        print(error);
-        yield DeleteCategoryFailure();
+        // List<Category>? categories = List<Category>.from(rawCategory.map((model)=> Post.fromJson(model)));
+
+        List<Future<void>> listJobs = List.empty(growable: true);
+        categories.forEach((category) async {
+          // category.id = null;
+          listJobs.add(repository.saveCategory(category));
+
+          category.assets.forEach((asset) {
+            // asset.id = null;
+            listJobs.add(repository.saveAsset(asset));
+          });
+        });
+
+        await Future.wait(listJobs).then((value) => {
+          print("HomeBloc : handleImportEvent : import success")
+        });
+
+        return ImportAssetSuccess();
+
+    } catch (exception) {
+      print("HomeBloc : handleImportEvent : $exception");
+    }
+    return ImportAssetFailure(title: "Import thất bại!");
+  }
+
+  Future<HomeState> handleGetExportedFileEvent(GetExportedFileEvent event) async {
+    try {
+      var externalDirectory = await getExternalStorageDirectory();
+      var listPairPath = List<Pair<String, String>>.empty(growable: true);
+      if(externalDirectory != null) {
+        await for(var file in externalDirectory.list()) {
+          var splitPaths = file.path.split('/');
+          var fileName = splitPaths.last;
+          if(fileName.length == "backup_asset_00000000_000000.txt".length && fileName.substring(0, "backup_asset".length) == "backup_asset") {
+            var newPair = Pair<String, String>(first: file.path, second: fileName);
+            listPairPath.add(newPair);
+          }
+        }
       }
-    } else if(event is DeleteAssetEvent) {
-      try {
-        repository.deleteAsset(event.asset);
-        yield DeleteAssetSuccess();
-      } catch (error) {
-        yield DeleteAssetFailure();
-      }
+
+      return GetExportedFileSuccess(listPath: listPairPath);
+    } catch (exception) {
+      print("HomeBloc : handleImportEvent : $exception");
+      return GetExportedFileFailure(title: "Ko tìm thấy file!");
     }
   }
 }

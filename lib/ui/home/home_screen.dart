@@ -14,9 +14,12 @@ import 'package:invest_management/ui/add_category/add_category_screen.dart';
 import 'package:invest_management/ui/category/category_bloc.dart';
 import 'package:invest_management/ui/category/category_event.dart';
 import 'package:invest_management/ui/category/category_screen.dart';
+import 'package:invest_management/ui/home/chose_exporte_file_screen.dart';
+import 'package:invest_management/ui/home/drawer.dart';
 import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
+import 'package:invest_management/ui/home/item_asset.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
 import 'package:invest_management/utils/enum/add_asset_screen_type.dart';
 import 'package:invest_management/utils/enum/add_category_screen_type.dart';
@@ -33,17 +36,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   CustomPopupMenuController categoryController = CustomPopupMenuController();
   CustomPopupMenuController assetController = CustomPopupMenuController();
+
+  List<Category>? listCategory;
+  List<PieData>? listPieData;
+  Triple<int, int, double>? totalDataTriple;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: DrawerMenuWidget(
+        actionClickExport: () {
+          BlocProvider.of<HomeBloc>(context).add(ExportAssetEvent());
+        },
+        actionClickImport: () {
+          BlocProvider.of<HomeBloc>(context).add(GetExportedFileEvent());
+        },
+      ),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
         centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.black),
         title: const Text(
           "Danh mục đầu tư",
           style: TextStyle(color: Colors.black),
@@ -67,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
             padding: const EdgeInsets.all(0),
             width: 36,
             child: IconButton(
-                icon: Image.asset(
+                icon:  Image.asset(
                   IconsResource.ic_add_asset,
                   color: Colors.black,
                 ),
@@ -105,14 +120,92 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Container(
           padding: const EdgeInsets.all(5),
           color: HexColor("#F2F5FA"),
-          child: BlocBuilder <HomeBloc, HomeState>(
+          child: BlocConsumer <HomeBloc, HomeState>(
+              listener: (context, homeState) {
+                if(homeState is DeleteAssetSuccess || homeState is DeleteCategorySuccess) {
+                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                }
+                else if(homeState is ExportAssetSuccess) {
+                  Navigator.of(context).pop();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text("Export thành công!", textAlign: TextAlign.center),
+                        actions: [
+                          TextButton(
+                            child: Text("OK"),
+                            onPressed:  () {
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      );
+                    },
+                  );
+                }
+                else if(homeState is ExportAssetFailure) {
+                  Navigator.of(context).pop();
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: Text(homeState.title ?? "", textAlign: TextAlign.center),
+                        content: Text(homeState.content ?? "", textAlign: TextAlign.center),
+                        actions: [
+                          TextButton(
+                            child: Text("OK"),
+                            onPressed:  () {
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      );
+                    },
+                  );
+                }
+                else if(homeState is GetExportedFileSuccess) {
+                  homeState.listPath.forEach((element) {
+                    print("_HomeScreenState : build : $element");
+                  });
+                  Navigator.pop(context);
+                  showModalBottomSheet<void>(
+                      isScrollControlled: true,
+                      shape: RoundedRectangleBorder(
+                          borderRadius:BorderRadius.only(
+                              topLeft: Radius.circular(12),
+                              topRight: Radius.circular(12)
+                          )
+                      ),
+                      backgroundColor: Colors.white,
+                      context: context,
+                      builder: (BuildContext buildContext) {
+                        return FractionallySizedBox(
+                            heightFactor: 0.5,
+                            child: ChooseExportedFileScreen(
+                              importCallback: (filePath) {
+                                BlocProvider.of<HomeBloc>(context).add(ImportAssetEvent(filePath));
+                              },
+                              listPath: homeState.listPath,
+                            )
+                        );
+                      }
+                  );
+                }
+                else if(homeState is ImportAssetSuccess) {
+                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                }
+              },
+              buildWhen: (previous, current) {
+                if(current is GetDataAssetSuccess) return true;
+                return false;
+              },
               builder: (context, homeState) {
                 if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {
                   return assetList(homeState.listCategory!, homeState.listPieData!, homeState.totalDataTriple!);
-                } else if(homeState is DeleteAssetSuccess || homeState is DeleteCategorySuccess) {
-                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                } else {
+                  return noData();
                 }
-                return noData();
               }
           )
       ),
@@ -194,7 +287,7 @@ class _HomeScreenState extends State<HomeScreen> {
             shrinkWrap: true,
             itemCount: categories.length,
             itemBuilder: (context, index) {
-              return new Card(
+              return Card(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15.0),
                 ),
@@ -364,39 +457,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                        );
                                     }
                                   }),
-                                  child: Container(
-                                      height: 55,
-                                      child: Container(
-                                        padding: EdgeInsets.fromLTRB(15, 0, 15, 0),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              categories[index].assets[index2].name!,
-                                              style: TextStyle(
-                                                fontSize: 14
-                                              ),
-                                            ),
-                                            Column(
-                                              crossAxisAlignment: CrossAxisAlignment.end,
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Text(
-                                                  parseCurrency(categories[index].assets[index2].capital),
-                                                ),
-                                                Text(
-                                                  parseCurrencyProfitPercentPlus(categories[index].assets[index2].profit, categories[index].assets[index2].profitPercent!),
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: categories[index].assets[index2].profit! > 0 ? Colors.green : Colors.red
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                  ),
+                                  child: ItemAssetWidget(asset: categories[index].assets[index2]),
                                 );
                               }
                           ),

@@ -214,6 +214,11 @@ class _$AssetDao extends AssetDao {
   }
 
   @override
+  Future<void> deleteAllAsset() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM category');
+  }
+
+  @override
   Future<void> insertCategory(Category category) async {
     await _categoryInsertionAdapter.insert(category, OnConflictStrategy.abort);
   }

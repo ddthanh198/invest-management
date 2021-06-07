@@ -15,3 +15,10 @@ class DeleteAssetEvent extends HomeEvent {
   Asset asset;
   DeleteAssetEvent(this.asset);
 }
+
+class ExportAssetEvent extends HomeEvent {}
+class GetExportedFileEvent extends HomeEvent {}
+class ImportAssetEvent extends HomeEvent {
+  String filePath;
+  ImportAssetEvent(this.filePath);
+}
