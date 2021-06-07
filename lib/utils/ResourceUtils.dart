@@ -13,4 +13,5 @@ class IconsResource {
   static String ic_cash = 'assets/icons/ic_cash.png';
   static String ic_import = 'assets/icons/ic_import.png';
   static String ic_export = 'assets/icons/ic_export.png';
+  static String ic_tick = 'assets/icons/ic_tick.png';
 }

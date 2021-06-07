@@ -20,7 +20,7 @@ part 'asset.g.dart';
 class Asset {
   @PrimaryKey(autoGenerate: true)
   @ColumnInfo(name: 'id')
-  final int? id;
+  int? id;
 
   @ColumnInfo(name: 'category_id') int? categoryId;
   @ColumnInfo(name: 'name') String? name;
