@@ -11,7 +11,7 @@ class Category {
 
   @PrimaryKey(autoGenerate: true)
   @ColumnInfo(name: 'id')
-  final int? id;
+  int? id;
 
   @ColumnInfo(name: 'name') String? name;
   @ColumnInfo(name: 'image') String? image;

@@ -18,4 +18,7 @@ class DeleteAssetEvent extends HomeEvent {
 
 class ExportAssetEvent extends HomeEvent {}
 class GetExportedFileEvent extends HomeEvent {}
-class ImportAssetEvent extends HomeEvent {}
+class ImportAssetEvent extends HomeEvent {
+  String filePath;
+  ImportAssetEvent(this.filePath);
+}

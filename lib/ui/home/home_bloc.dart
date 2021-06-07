@@ -123,13 +123,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
 
   Future<HomeState> handleDeleteCategoryEvent(DeleteCategoryEvent event) async {
     try{
-      List<Future<void>> listJobs = List.empty(growable: true);
+      await repository.deleteCategory(event.category);
 
-      listJobs.add(repository.deleteCategory(event.category));
-
-      await Future.wait(listJobs).then((value) => {
-
-      });
+      // List<Future<void>> listJobs = List.empty(growable: true);
+      //
+      // listJobs.add(repository.deleteCategory(event.category));
+      //
+      // await Future.wait(listJobs).then((value) => {
+      //
+      // });
 
       return DeleteCategorySuccess();
     } catch (error) {
@@ -196,6 +198,43 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<HomeState> handleImportEvent(ImportAssetEvent event) async {
+    try{
+        await repository.deleteAllAsset();
+
+        File inputFile = File(event.filePath);
+
+        final contents = await inputFile.readAsString();
+
+        List<dynamic> rawList = jsonDecode(contents);
+
+        List<Category> categories = List.empty(growable: true);
+        rawList.forEach((element) {
+          Category category = Category.fromJson(element);
+          categories.add(category);
+        });
+
+        // List<Category>? categories = List<Category>.from(rawCategory.map((model)=> Post.fromJson(model)));
+
+        List<Future<void>> listJobs = List.empty(growable: true);
+        categories.forEach((category) async {
+          // category.id = null;
+          listJobs.add(repository.saveCategory(category));
+
+          category.assets.forEach((asset) {
+            // asset.id = null;
+            listJobs.add(repository.saveAsset(asset));
+          });
+        });
+
+        await Future.wait(listJobs).then((value) => {
+          print("HomeBloc : handleImportEvent : import success")
+        });
+
+        return ImportAssetSuccess();
+
+    } catch (exception) {
+      print("HomeBloc : handleImportEvent : $exception");
+    }
     return ImportAssetFailure(title: "Import thất bại!");
   }
 

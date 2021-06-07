@@ -30,4 +30,7 @@ abstract class AssetDao {
 
   @Query('DELETE FROM asset WHERE category_id = :categoryId')
   Future<void> deleteAllAssetWithCategoryId(int categoryId);
+
+  @Query('DELETE FROM category')
+  Future<void> deleteAllAsset();
 }

@@ -39,6 +39,10 @@ class _HomeScreenState extends State<HomeScreen> {
   CustomPopupMenuController categoryController = CustomPopupMenuController();
   CustomPopupMenuController assetController = CustomPopupMenuController();
 
+  List<Category>? listCategory;
+  List<PieData>? listPieData;
+  Triple<int, int, double>? totalDataTriple;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -180,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             heightFactor: 0.5,
                             child: ChooseExportedFileScreen(
                               importCallback: (filePath) {
-                                print("_HomeScreenState : build : $filePath");
+                                BlocProvider.of<HomeBloc>(context).add(ImportAssetEvent(filePath));
                               },
                               listPath: homeState.listPath,
                             )
@@ -188,6 +192,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       }
                   );
                 }
+                else if(homeState is ImportAssetSuccess) {
+                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                }
+              },
+              buildWhen: (previous, current) {
+                if(current is GetDataAssetSuccess) return true;
+                return false;
               },
               builder: (context, homeState) {
                 if(homeState is GetDataAssetSuccess && homeState.listCategory != null && homeState.listCategory!.length > 0) {

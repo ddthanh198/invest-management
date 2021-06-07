@@ -38,9 +38,7 @@ class GetExportedFileFailure extends HomeState{
   GetExportedFileFailure({this.title, this.content});
 }
 
-class ImportAssetSuccess extends HomeState{
-
-}
+class ImportAssetSuccess extends HomeState{}
 class ImportAssetFailure extends HomeState{
   String? title;
   String? content;
