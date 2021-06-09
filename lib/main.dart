@@ -8,6 +8,7 @@ import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_screen.dart';
+import 'package:package_info/package_info.dart';
 import 'ui/home/home_event.dart';
 
 
@@ -22,14 +23,18 @@ Future<void> main() async {
   AssetDatabase? assetDb = await $FloorAssetDatabase.databaseBuilder('asset_database.db').addMigrations([migration1to2]).build();
   AssetDao assetDao = assetDb.assetDao;
   AssetRepository _repository = AssetRepository(assetDao: assetDao);
-  runApp(MyApp(assetDatabase: assetDb, repository: _repository));
+
+  PackageInfo packageInfo = await PackageInfo.fromPlatform();
+
+  runApp(MyApp(assetDatabase: assetDb, repository: _repository, packageInfo: packageInfo));
 }
 
 class MyApp extends StatelessWidget {
 
   final AssetDatabase? assetDatabase;
   final AssetRepository repository;
-  const MyApp({@required this.assetDatabase, required this.repository});
+  final PackageInfo packageInfo;
+  const MyApp({required this.assetDatabase, required this.repository, required this.packageInfo});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +45,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             primarySwatch: Colors.blue,
           ),
-          home: HomeScreen(repository: repository)
+          home: HomeScreen(repository: repository, packageInfo: packageInfo,)
       ),
     );
   }
