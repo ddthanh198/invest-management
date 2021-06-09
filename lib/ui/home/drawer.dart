@@ -1,19 +1,24 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
+import 'package:package_info/package_info.dart';
 
+// ignore: must_be_immutable
 class DrawerMenuWidget extends StatelessWidget {
    final Function? actionClickExport;
    final Function? actionClickImport;
+   final PackageInfo? packageInfo;
 
    DrawerMenuWidget({
     Key? key,
     this.actionClickExport,
-    this.actionClickImport
+    this.actionClickImport,
+    this.packageInfo
   }) : super(key: key);
-
+   
   @override
   Widget build(BuildContext context) {
+    print("DrawerMenuWidget : build : ");
     return Drawer(
       child: Container(
         margin: EdgeInsets.only(top: 40),
@@ -47,6 +52,21 @@ class DrawerMenuWidget extends StatelessWidget {
                 ),
                 title: Text("Import"),
               ),
+            ),
+            if(packageInfo != null) Column(
+              children: [
+                Divider(height: 2),
+                Container(
+                  margin: EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(packageInfo?.appName ?? ""),
+                      Text(packageInfo?.version ?? "")
+                    ],
+                  ),
+                ),
+              ],
             )
           ],
         ),

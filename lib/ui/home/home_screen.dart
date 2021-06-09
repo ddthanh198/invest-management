@@ -25,11 +25,13 @@ import 'package:invest_management/utils/enum/add_asset_screen_type.dart';
 import 'package:invest_management/utils/enum/add_category_screen_type.dart';
 import 'package:invest_management/utils/enum/menu_item_type.dart';
 import 'package:invest_management/utils/extension/number_extension.dart';
+import 'package:package_info/package_info.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class HomeScreen extends StatefulWidget {
   final AssetRepository? repository;
-  const HomeScreen({@required this.repository});
+  final PackageInfo packageInfo;
+  const HomeScreen({required this.repository, required this.packageInfo});
 
   @override
   State<StatefulWidget> createState() => _HomeScreenState();
@@ -53,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actionClickImport: () {
           BlocProvider.of<HomeBloc>(context).add(GetExportedFileEvent());
         },
+        packageInfo: widget.packageInfo,
       ),
       appBar: AppBar(
         elevation: 0,
