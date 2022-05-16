@@ -14,7 +14,7 @@ import 'ui/home/home_event.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Bloc.observer = AssetBlocObserver();
+  // Bloc.observer = AssetBlocObserver();
 
   final migration1to2 = Migration(1, 2, (database) async {
     await database.execute('ALTER TABLE asset MODIFY COLUMN profitPercent REAL');
