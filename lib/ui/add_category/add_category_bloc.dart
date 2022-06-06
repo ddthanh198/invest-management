@@ -7,20 +7,23 @@ import 'package:invest_management/ui/add_category/add_category_state.dart';
 class AddCategoryBloc extends Bloc<AddCategoryEvent, AddCategoryState>{
   final AssetRepository? repository;
 
-  AddCategoryBloc({@required this.repository}) : super(AddCategoryState());
+  AddCategoryBloc({@required this.repository}) : super(AddCategoryState()) {
+    on<SaveCategoryEvent>((event, emit) => _handleSaveCategoryEvent(event, emit));
+    on<EditCategoryEvent>((event, emit) => _handleEditCategoryEvent(event, emit));
+    on<RefreshColorOrImage>((event, emit) => _handleRefreshColorOrImage(event, emit));
+  }
 
-  @override
-  Stream<AddCategoryState> mapEventToState(AddCategoryEvent event) async* {
-    if(event is SaveCategoryEvent) {
-      repository!.saveCategory(event.category!);
-      yield SaveCategorySuccess();
-    }
-    else if(event is EditCategoryEvent){
-      repository!.updateCategory(event.category!);
-      yield UpdateCategorySuccess();
-    }
-    else if(event is RefreshColorOrImage) {
-      yield RefreshColorOrImageState();
-    }
+  void _handleSaveCategoryEvent(SaveCategoryEvent event, Emitter<AddCategoryState> emit) async {
+    repository!.saveCategory(event.category!);
+    emit(SaveCategorySuccess());
+  }
+
+  void _handleEditCategoryEvent(EditCategoryEvent event, Emitter<AddCategoryState> emit) async {
+    repository!.updateCategory(event.category!);
+    emit(UpdateCategorySuccess());
+  }
+
+  void _handleRefreshColorOrImage(RefreshColorOrImage event, Emitter<AddCategoryState> emit) async {
+    emit(RefreshColorOrImageState());
   }
 }
