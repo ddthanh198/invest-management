@@ -10,6 +10,7 @@ import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/data/model/pair.dart';
 import 'package:invest_management/data/model/pie_data.dart';
 import 'package:invest_management/data/model/triple.dart';
+import 'package:invest_management/di/injection/injection.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/add_asset/add_aseet_state.dart';
 import 'package:invest_management/ui/home/home_event.dart';
@@ -19,9 +20,9 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  final AssetRepository repository;
+  final AssetRepository repository = getIt.get<AssetRepository>();
 
-  HomeBloc({required this.repository}) : super(GetDataAssetSuccess(listCategory: List.empty(growable: true), listPieData: List.empty(growable: true), totalDataTriple: Triple(first: 0, second: 0, third: 0))) {
+  HomeBloc() : super(GetDataAssetSuccess(listCategory: List.empty(growable: true), listPieData: List.empty(growable: true), totalDataTriple: Triple(first: 0, second: 0, third: 0))) {
     on<GetDataAssetEvent>((event, emit) => _handleGetDataAssetEvent(event, emit));
     on<DeleteCategoryEvent>((event, emit) => _handleDeleteCategoryEvent(event, emit));
     on<ExportAssetEvent>((event, emit) => _handleExportAssetEvent(event, emit));

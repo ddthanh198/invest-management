@@ -6,6 +6,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:invest_management/data/model/category.dart';
 import 'package:invest_management/data/model/pie_data.dart';
 import 'package:invest_management/data/model/triple.dart';
+import 'package:invest_management/di/injection/injection.dart';
 import 'package:invest_management/repositories/asset_repository.dart';
 import 'package:invest_management/ui/add_asset/add_asset_bloc.dart';
 import 'package:invest_management/ui/add_asset/add_asset_screen.dart';
@@ -20,6 +21,8 @@ import 'package:invest_management/ui/home/home_bloc.dart';
 import 'package:invest_management/ui/home/home_event.dart';
 import 'package:invest_management/ui/home/home_state.dart';
 import 'package:invest_management/ui/home/item_asset.dart';
+import 'package:invest_management/ui/user/user_bloc.dart';
+import 'package:invest_management/ui/user/user_event.dart';
 import 'package:invest_management/utils/ResourceUtils.dart';
 import 'package:invest_management/utils/enum/add_asset_screen_type.dart';
 import 'package:invest_management/utils/enum/add_category_screen_type.dart';
@@ -28,10 +31,11 @@ import 'package:invest_management/utils/extension/number_extension.dart';
 import 'package:package_info/package_info.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../user/user_screen.dart';
+
 class HomeScreen extends StatefulWidget {
-  final AssetRepository? repository;
-  final PackageInfo packageInfo;
-  const HomeScreen({required this.repository, required this.packageInfo});
+  final AssetRepository? repository = getIt.get<AssetRepository>();
+  final PackageInfo packageInfo = getIt.get<PackageInfo>();
 
   @override
   State<StatefulWidget> createState() => _HomeScreenState();
@@ -104,13 +108,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         return FractionallySizedBox(
                             heightFactor: 0.85,
                             child: BlocProvider(
-                              create: (BuildContext context) => CategoryBloc(repository: widget.repository)..add(GetCategoryEvent()),
-                              child: CategoryScreen(
-                                repository: widget.repository,
-                                updateCallback: () {
-                                  BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
-                                },
-                              ),
+                              // create: (BuildContext context) => CategoryBloc(repository: widget.repository)..add(GetCategoryEvent()),
+                              // child: CategoryScreen(
+                              //   repository: widget.repository,
+                              //   updateCallback: () {
+                              //     BlocProvider.of<HomeBloc>(context).add(GetDataAssetEvent());
+                              //   },
+                              // ),
+                              create: (BuildContext context) => UserBloc()..add(GetUserEvent()),
+                              child: UserScreen(),
                             )
                         );
                       }
