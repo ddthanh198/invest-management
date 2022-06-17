@@ -225,6 +225,5 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     } catch (exception) {
       print("HomeBloc : handleImportEvent : $exception");
     }
-    emit(ImportAssetFailure(title: "Import thất bại!"));
   }
 }
