@@ -159,8 +159,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           ));
         }
       }
-
-      emit(ExportAssetFailure(title: "Export thất bại!"));
     } catch (exception) {
       print("HomeBloc : handleExportEvent : $exception");
       emit(ExportAssetFailure(title: "Export thất bại!"));
