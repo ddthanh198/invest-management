@@ -4,6 +4,8 @@ Personal invest management
 
 ## Getting Started
 
+Living on Chplay: https://play.google.com/store/apps/details?id=com.jack.investment_management
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:
